@@ -8,12 +8,17 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
-namespace AssemblyCSharp
+namespace Assets.Scripts
 {
-	public class AgentEventArgs  : EventArgs
-	{
-			public Agent Agent{ get; set;}
-			 
-	}
+    public class AgentEventArgs<T> : EventArgs  
+    {
+        private T _agent;
+        public T Agent { get { return _agent; } }
+
+        public AgentEventArgs(T agent)
+        {
+            _agent = agent;
+        }
+    }
 }
 

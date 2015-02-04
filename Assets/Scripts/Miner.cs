@@ -1,19 +1,49 @@
 using UnityEngine;
 using System.Collections;
-
-public class Miner : Agent
+using Assets.Scripts.States;
+namespace Assets.Scripts
 {
+	
+	public class Miner : IAgent<Miner>
+    {
+	    public int GoldCarried;
+	
+	    public int MoneyInBank;
+	
+	    public int Thirst;
+	
+	    public int Fatigue;
+	
+	    public LocationType LocationType;
 
-		// Use this for initialization
-		void Start ()
-		{
+        public IStateMachine<Miner> StateMachine
+        {
+            get;
+            set;
+        }
+
+        public int NextValidId { get; set; }
+	    void Awake()
+	    {
+	       NextValidId = Random.Range(0, 100);
+             
+	    }
 	
-		}
+	    // Use this for initialization
+	    void Start()
+	    {
 	
-		// Update is called once per frame
-		void Update ()
-		{
+	    }
+	 
+	   
+	    // Update is called once per frame
+	   void Update()
+	    {
+	        Thirst += 1;
 	
-		}
+            //if (CurrentState != null)
+            //    CurrentState.Execute(this);
+	    }
+	}
+	
 }
-

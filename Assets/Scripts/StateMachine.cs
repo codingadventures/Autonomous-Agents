@@ -1,19 +1,49 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-public class StateMachine<T> where T : Agent 
+namespace Assets.Scripts
 {
-	public State<T> CurrentState{ get; private set; }
+    public class StateMachine<T> : IStateMachine<T> 
+    {
 
-	public State<T> GlobalState{ get; private set; }
+        public IState<T> CurrentState { get; set; }
 
-	public State<T> PreviousState{ get; private set; }
 
-	public void Update(Agent agent)
-	{
-		PreviousState = CurrentState;
+        public IState<T> GlobalState { get; set; }
 
-		CurrentState = CurrentState.Execute ();
-	}
 
+        public IState<T> PreviousState { get; set; }
+
+
+        public T Agent { get; set; }
+
+        public StateMachine(T agent)
+        {
+            Agent = agent;
+        }
+
+        public void Update()
+        {
+            //if (CurrentState != null) CurrentState.Execute(agent);
+
+            //if (GlobalState != null) GlobalState.Execute(agent);
+        }
+
+        //public void ChangeState(State<T> newState)
+        //{
+        //}
+
+        public void ChangeState(IState<T> newState)
+        {
+            
+            //_previousState = CurrentState;
+
+            //_currentState.O
+
+            //_currentState = newState;
+
+        }
+    }
 }
