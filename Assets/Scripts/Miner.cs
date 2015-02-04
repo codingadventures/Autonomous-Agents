@@ -23,6 +23,7 @@ namespace Assets.Scripts
         }
 
         public int NextValidId { get; set; }
+
 	    void Awake()
 	    {
 	       NextValidId = Random.Range(0, 100);

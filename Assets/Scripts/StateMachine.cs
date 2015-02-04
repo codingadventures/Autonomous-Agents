@@ -26,23 +26,22 @@ namespace Assets.Scripts
 
         public void Update()
         {
-            //if (CurrentState != null) CurrentState.Execute(agent);
+            if (CurrentState != null) CurrentState.Execute(Agent);
 
-            //if (GlobalState != null) GlobalState.Execute(agent);
+            if (GlobalState != null) GlobalState.Execute(Agent);
         }
-
-        //public void ChangeState(State<T> newState)
-        //{
-        //}
+        
 
         public void ChangeState(IState<T> newState)
         {
-            
-            //_previousState = CurrentState;
 
-            //_currentState.O
+            PreviousState = CurrentState;
 
-            //_currentState = newState;
+            CurrentState.OnExit(new AgentEventArgs<T>(Agent));
+
+            CurrentState = newState;
+
+            CurrentState.OnEnter(new AgentEventArgs<T>(Agent));
 
         }
     }

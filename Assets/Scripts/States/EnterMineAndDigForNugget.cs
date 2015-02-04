@@ -17,5 +17,11 @@ namespace Assets.Scripts.States
         {
             throw new NotImplementedException();
         }
+
+
+        public void Execute(T agent)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

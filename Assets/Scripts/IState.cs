@@ -5,12 +5,13 @@ using System.Text;
 
 namespace Assets.Scripts
 {
-    public interface IState<T> 
+    public interface IState<T>
     {
-         
+
         void OnEnter(AgentEventArgs<T> e);
 
-         void OnExit(AgentEventArgs<T> e);
+        void OnExit(AgentEventArgs<T> e);
 
+        void Execute(T agent);
     }
 }
