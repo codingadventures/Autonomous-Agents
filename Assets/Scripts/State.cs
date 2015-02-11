@@ -5,19 +5,19 @@ using System;
 namespace Assets.Scripts
 {
 
-    public abstract class State<T> : IState<T> 
+    public abstract class State<T> : IState<T>
     {
         public virtual void Execute(T agent)
         {
-           
+
         }
 
-      
+
         public event EventHandler<AgentEventArgs<T>> Enter;
         public event EventHandler<AgentEventArgs<T>> Exit;
 
 
-        public void OnEnter(AgentEventArgs<T> e)
+        public virtual void OnEnter(AgentEventArgs<T> e)
         {
             var handler = Enter;
             if (handler != null)
@@ -34,6 +34,6 @@ namespace Assets.Scripts
                 handler(this, e);
             }
         }
-         
+
     }
 }

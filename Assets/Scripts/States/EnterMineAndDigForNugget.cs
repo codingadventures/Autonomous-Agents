@@ -5,23 +5,28 @@ using System.Text;
 
 namespace Assets.Scripts.States
 {
-    class EnterMineAndDigForNugget<T> : IState<T>  
+    class EnterMineAndDigForNugget<T> : State<T> where T : Miner
     {
+        public EnterMineAndDigForNugget()
+        {
+            Enter += EnterMineAndDigForNugget_Enter;
+            Exit += EnterMineAndDigForNugget_Exit;
+        }
 
-        public void OnEnter(AgentEventArgs<T> e)
+        void EnterMineAndDigForNugget_Exit(object sender, AgentEventArgs<T> e)
         {
             throw new NotImplementedException();
         }
 
-        public void OnExit(AgentEventArgs<T> e)
+        void EnterMineAndDigForNugget_Enter(object sender, AgentEventArgs<T> e)
         {
             throw new NotImplementedException();
         }
 
 
-        public void Execute(T agent)
-        {
-            throw new NotImplementedException();
+        public override void Execute(T agent)
+        { 
+
         }
     }
 }

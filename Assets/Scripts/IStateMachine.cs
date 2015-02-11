@@ -17,5 +17,7 @@ namespace Assets.Scripts
         T Agent { get; }// { get; protected set; }
 
         void ChangeState(IState<T> newState);
+        
+        void Update();
     }
 }
