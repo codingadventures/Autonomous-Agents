@@ -1,6 +1,7 @@
 ﻿
 
 using System;
+using Assets.Scripts.Agents;
 
 namespace Assets.Scripts
 {
@@ -29,7 +30,12 @@ namespace Assets.Scripts
 
             if (GlobalState != null) GlobalState.Execute(Agent);
         }
-        
+
+        public void RevertToPreviousState()
+        {
+            ChangeState(PreviousState);
+        }
+
 
         public void ChangeState(IState<T> newState)
         {

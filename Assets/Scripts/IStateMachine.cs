@@ -14,5 +14,7 @@
         void ChangeState(IState<T> newState);
         
         void Update();
+
+        void RevertToPreviousState();
     }
 }

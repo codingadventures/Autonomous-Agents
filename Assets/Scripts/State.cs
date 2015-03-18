@@ -1,4 +1,6 @@
 ﻿using System;
+using Assets.Scripts.Agents;
+using Assets.Scripts.Message;
 
 namespace Assets.Scripts
 {
@@ -6,11 +8,9 @@ namespace Assets.Scripts
     public abstract class State<T> : IState<T>
     {
        
-
-
         public event EventHandler<AgentEventArgs<T>> Enter;
         public event EventHandler<AgentEventArgs<T>> Exit;
-        public event EventHandler<AgentEventArgs<T>> Message;
+        public event EventHandler<MessageEventArgs<T>> Message;
 
 
         public virtual void OnEnter(AgentEventArgs<T> aea)
@@ -31,7 +31,7 @@ namespace Assets.Scripts
             }
         }
 
-        public void OnMessage(AgentEventArgs<T> aea)
+        public void OnMessage(MessageEventArgs<T> aea)
         {
             var handler = Message;
             if (handler != null)

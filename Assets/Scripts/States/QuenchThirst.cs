@@ -1,11 +1,11 @@
-using UnityEngine;
-
+ 
 namespace Assets.Scripts.States
 {
-	using System;
-	using Assets.Scripts;
 
-	public class QuenchThirst<T> : State<T> where T : Miner
+    using Agents;
+    using UnityEngine;
+
+    public sealed class QuenchThirst<T> : State<T> where T : Miner
 	{
  
 		private QuenchThirst ()

@@ -1,7 +1,7 @@
  
 using System;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.Agents
 {
     public class AgentEventArgs<T> : EventArgs  
     {

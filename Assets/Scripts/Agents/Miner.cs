@@ -1,11 +1,10 @@
-using UnityEngine;
-using Assets.Scripts.States;
 using System.Collections;
+using Assets.Scripts.Message;
+using Assets.Scripts.States;
+using UnityEngine;
 
-
-namespace Assets.Scripts
-{
-
+namespace Assets.Scripts.Agents
+{ 
     public class Miner : MonoBehaviour, IAgent<Miner>
     {
 		#region [ Public Field - Used By Unity Interface ]
@@ -22,8 +21,7 @@ namespace Assets.Scripts
 
 		#endregion
 
-
-
+         
 		#region[ Public Properties ]
 		public int GoldCarried	{get; private set;}
 
@@ -53,7 +51,8 @@ namespace Assets.Scripts
         void Start()
         {
 			StateMachine.ChangeState(GoHomeAndSleepTillRested<Miner>.Instance);
-			StateMachine.GlobalState = GlobalState<Miner>.Instance;
+			StateMachine.GlobalState = MinerGlobalState<Miner>.Instance; 
+
 			StartCoroutine(PerformUpdate());
         }
 

@@ -1,8 +1,11 @@
-public enum LocationType
+namespace Assets.Scripts
 {
-    Bank,
-    HomeSweetHome,
-    Goldmine,
-    Saloon
+    public enum LocationType
+    {
+        Bank,
+        HomeSweetHome,
+        Goldmine,
+        Saloon
 
+    }
 }

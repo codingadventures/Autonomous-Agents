@@ -1,17 +1,17 @@
 namespace Assets.Scripts.States
-{
-using System;
+{ 
 	
-	public class GlobalState<T> : State<T>
+	public class MinerGlobalState<T> : State<T>
 	{
-		private GlobalState ()
-		{
-		 
-		}
-		
+	 
 		#region [ Singleton Implementation ]
-		public static GlobalState<T> Instance { get { return Nested.instance; } }
-		
+		public static MinerGlobalState<T> Instance { get { return Nested.instance; } }
+
+        private MinerGlobalState()
+        {
+
+        }
+
 		/// This is a fully lazy initialization implementation
 		/// Instantiation is triggered by the first reference to the static member of the nested class, 
 		/// which only occurs in Instance. This means the implementation is fully lazy.
@@ -26,7 +26,7 @@ using System;
 			{
 			}
 			
-			internal static readonly GlobalState<T> instance = new GlobalState<T>();
+			internal static readonly MinerGlobalState<T> instance = new MinerGlobalState<T>();
 		}
 		#endregion
 
