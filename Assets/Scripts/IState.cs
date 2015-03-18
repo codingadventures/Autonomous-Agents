@@ -1,8 +1,4 @@
-﻿using Assets.Scripts.Message;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 
 namespace Assets.Scripts
 {
@@ -10,13 +6,13 @@ namespace Assets.Scripts
     {
         event EventHandler<AgentEventArgs<T>> Enter;
         event EventHandler<AgentEventArgs<T>> Exit;
-        event EventHandler<MessageEventArgs<T>> Message;
+        event EventHandler<AgentEventArgs<T>> Message;
         
         void OnEnter(AgentEventArgs<T> aea);
 
         void OnExit(AgentEventArgs<T> aea);
 
-        void OnMessage(MessageEventArgs<T> mea);
+        void OnMessage(AgentEventArgs<T> mea);
 
         void Execute(T agent);
     }

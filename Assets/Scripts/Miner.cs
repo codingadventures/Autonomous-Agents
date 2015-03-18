@@ -1,28 +1,47 @@
 using UnityEngine;
-using System.Collections;
 using Assets.Scripts.States;
+using System.Collections;
+
+
 namespace Assets.Scripts
 {
 
-    public class Miner : IAgent<Miner>
+    public class Miner : MonoBehaviour, IAgent<Miner>
     {
-        public int GoldCarried;
+		#region [ Public Field - Used By Unity Interface ]
 
-        public int MoneyInBank;
+		public int MaxThirst;
 
-        public int Thirst;
+		public int MaxFatigue;
 
-        public int Fatigue;
+		public int MaxGoldCarried;
 
-        public LocationType LocationType;
+		public int RichnessThreshold;
 
-        public IStateMachine<Miner> StateMachine
-        {
-            get;
-            set;
-        }
+		public float UpdateStep;
 
-        public int NextValidId { get; set; }
+		#endregion
+
+
+
+		#region[ Public Properties ]
+		public int GoldCarried	{get; private set;}
+
+		public int MoneyInBank	{get; private set;}
+
+		public int Thirst	{get; private set;}
+
+		public int Fatigue	{get; private set;}
+
+		public LocationType Location {get; private set;}
+       
+		public int NextValidId { get; set; }
+		
+		public IStateMachine<Miner> StateMachine { get; set; }
+        #endregion
+
+		#region [ Unity Monobehavior Events ]
+
 
         void Awake()
         {
@@ -33,17 +52,108 @@ namespace Assets.Scripts
         // Use this for initialization
         void Start()
         {
-
+			StateMachine.ChangeState(GoHomeAndSleepTillRested<Miner>.Instance);
+			StateMachine.GlobalState = GlobalState<Miner>.Instance;
+			StartCoroutine(PerformUpdate());
         }
 
 
-        // Update is called once per frame
-        void Update()
-        {
-            Thirst += 1;
+		IEnumerator PerformUpdate()
+		{
+			while(true)
+			{
+            	Thirst += 1;
 
-            StateMachine.Update();            
+            	StateMachine.Update();
+
+				yield return new WaitForSeconds(UpdateStep);
+			}
         }
+
+		#endregion
+
+		#region [ Overrides ]
+
+		public override string ToString()
+		{
+			return string.Format ("[Miner - {5}: GoldCarried={0}, MoneyInBank={1}, Thirst={2}, Fatigue={3}, LocationType={4}]\n", GoldCarried, MoneyInBank, Thirst, Fatigue, Location, NextValidId);
+		}
+
+		#endregion
+
+		#region [ Public Methods ]
+
+		public void IncreaseFatigue(int? fatigue = null)
+		{
+			int fatigueTosum = fatigue ?? 1;
+
+			Fatigue += fatigueTosum;
+		}
+
+		public void IncreaseThirst(int? thirst = null)
+		{
+			int thirstTosum = thirst ?? 1;
+			
+			Thirst += thirstTosum;
+		}
+
+		public void Drink()
+		{
+			Thirst = 0;
+		}
+
+		public void DepositMoney(int money)
+		{
+			MoneyInBank += money;
+			GoldCarried = 0;
+		}
+
+		public void SpendMoney(int moneySpent)
+		{
+			MoneyInBank -= moneySpent;
+		}
+
+		public void Rest()
+		{
+			Fatigue--;
+		}
+
+		public void ChangeLocation(LocationType locationType)
+		{
+			Location = locationType;
+		}
+
+		public void AddGoldToInventory(int goldfound)
+		{
+			GoldCarried += goldfound;
+		}
+
+		public bool IsRich()
+		{
+			return MoneyInBank >= RichnessThreshold;
+		}
+
+		public bool IsThirsty()
+		{
+			return Thirst >= MaxThirst;
+		}
+
+		public bool IsPocketFull()
+		{
+			return GoldCarried >= MaxGoldCarried;
+		}
+
+		public bool IsTired()
+		{
+			return Fatigue >= MaxFatigue;
+		}
+
+		public void ChangeState<T>(IState<T> newState)
+		{
+			StateMachine.ChangeState((IState<Miner>)newState);
+		}
+
+		#endregion
     }
 
 }
