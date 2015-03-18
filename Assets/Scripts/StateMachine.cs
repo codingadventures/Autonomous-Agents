@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿
+
+using System;
 
 namespace Assets.Scripts
 {
@@ -34,12 +33,16 @@ namespace Assets.Scripts
 
         public void ChangeState(IState<T> newState)
         {
+			if (newState == null)
+				throw new ArgumentNullException("newState","The input state cannot be null");
 
             PreviousState = CurrentState;
 
-            CurrentState.OnExit(new AgentEventArgs<T>(Agent));
+			if (CurrentState != null)
+            	CurrentState.OnExit(new AgentEventArgs<T>(Agent));
 
             CurrentState = newState;
+
 
             CurrentState.OnEnter(new AgentEventArgs<T>(Agent));
 
