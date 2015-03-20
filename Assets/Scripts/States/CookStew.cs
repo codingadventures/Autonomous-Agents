@@ -53,7 +53,9 @@ namespace Assets.Scripts.States
             wife.Say("Puttin' the stew on the table");
             wife.Say("StewReady! Lets eat");
             wife.Cooking = false;
-            wife.ChangeState<T>(DoHousework<T>.Instance);
+            Messenger.Broadcast(MessageType.StewsReady.ToString(),
+                new MessageEventArgs<Agent>(e.Agent,new Telegram{MessageType = MessageType.StewsReady})
+                );
         }
 
 
@@ -61,6 +63,7 @@ namespace Assets.Scripts.States
         public override void Execute(Agent agent)
         {
             agent.Say("Fussin' over food");
+            agent.ChangeState<T>(DoHousework<T>.Instance);
         }
     }
 }
