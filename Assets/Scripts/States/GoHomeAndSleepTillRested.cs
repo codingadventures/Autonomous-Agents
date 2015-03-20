@@ -1,15 +1,16 @@
- namespace Assets.Scripts.States
+
+namespace Assets.Scripts.States
 {
     using Agents;
     using Message;
     using Scripts;
-
-    public sealed class GoHomeAndSleepTillRested<T> : State  where T : Miner
+    using UnityEngine;
+    public sealed class GoHomeAndSleepTillRested<T> : State where T : Miner
     {
         private GoHomeAndSleepTillRested()
         {
             Enter += GoHomeAndSleepTilRested_Enter;
-            Exit += GoHomeAndSleepTilRested_Exit; 
+            Exit += GoHomeAndSleepTilRested_Exit;
         }
 
 
@@ -45,12 +46,21 @@
         {
             e.Agent.Say("Walkin' Home");
             e.Agent.ChangeLocation(LocationType.HomeSweetHome);
-            Messenger.Broadcast(MessageType.HiHoneyImHome.ToString(),new MessageEventArgs<Agent>(e.Agent, new Telegram{MessageType = MessageType.HiHoneyImHome}));
+            try
+            {
+                Messenger.Broadcast(MessageType.HiHoneyImHome.ToString(), new MessageEventArgs<Agent>(e.Agent, new Telegram { MessageType = MessageType.HiHoneyImHome }));
+
+            }
+            catch (Messenger.BroadcastException be)
+            {
+                Debug.LogException(be);
+
+            }
         }
 
         public override void Execute(Agent agent)
         {
-            var miner = (T) agent;
+            var miner = (T)agent;
             if (!miner.IsTired())
             {
                 agent.Say("All mah fatigue has drained away. Time to find more gold!");
