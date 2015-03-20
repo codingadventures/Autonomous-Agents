@@ -311,7 +311,8 @@ namespace Assets.Scripts.Message
             if (eventTable.TryGetValue(eventType, out d))
             {
                 Callback<T, U> callback = d as Callback<T, U>;
-
+               
+              
                 if (callback != null)
                 {
                     callback(arg1, arg2);

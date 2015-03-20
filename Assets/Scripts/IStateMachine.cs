@@ -1,18 +1,21 @@
-﻿namespace Assets.Scripts
+﻿
+namespace Assets.Scripts
 {
-    public interface IStateMachine<T>  
+    using Agents;
+
+    public interface IStateMachine 
     {
 
-        IState<T> CurrentState { get;}
+        IState CurrentState { get; }
 
-        IState<T> GlobalState { get;  set; }
+        IState GlobalState { get; set; }
 
-        IState<T> PreviousState { get;}
+        IState PreviousState { get; }
 
-        T Agent { get; }// { get; protected set; }
+        Agent Agent { get; }
 
-        void ChangeState(IState<T> newState);
-        
+        void ChangeState(IState newState);
+
         void Update();
 
         void RevertToPreviousState();

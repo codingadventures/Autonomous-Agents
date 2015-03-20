@@ -2,20 +2,20 @@
 namespace Assets.Scripts.States
 {
     using Agents;
-    using Message;
 
-    public class CookStew<T> : State where T : Elsa
+    public class EatStew<T> : State where T : Miner
     {
+
         #region [ Singleton Implementation ]
 
-        private CookStew()
+        private EatStew()
         {
-            Enter += CookStew_Enter;
-            Exit += CookStew_Exit;
+            Enter += EatStew_Enter;
+            Exit += EatStew_Exit;
         }
 
-
-        public static CookStew<T> Instance { get { return Nested.instance; } }
+      
+        public static EatStew<T> Instance { get { return Nested.instance; } }
 
         /// This is a fully lazy initialization implementation
         /// Instantiation is triggered by the first reference to the static member of the nested class, 
@@ -31,36 +31,25 @@ namespace Assets.Scripts.States
             {
             }
 
-            internal static readonly CookStew<T> instance = new CookStew<T>();
+            internal static readonly EatStew<T> instance = new EatStew<T>();
         }
         #endregion
 
-
-        private void CookStew_Enter(object sender, AgentEventArgs<Agent> e)
+        void EatStew_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            var wife = (T)e.Agent;
-            if (wife.Cooking) return;
-
-            wife.Say("Putting the stew in the oven");
-
-            wife.Cooking = true;
+            e.Agent.Say("Smells Reaaal goood Elsa!");
         }
 
-        private void CookStew_Exit(object sender, AgentEventArgs<Agent> e)
+        private void EatStew_Exit(object sender, AgentEventArgs<Agent> e)
         {
-            var wife = (T)e.Agent;
-
-            wife.Say("Puttin' the stew on the table");
-            wife.Say("StewReady! Lets eat");
-            wife.Cooking = false;
-            wife.ChangeState<T>(DoHousework<T>.Instance);
+            e.Agent.Say("Thankya li'lle lady. Ah better get back to whatever ah wuz doin'");
         }
-
-
+         
 
         public override void Execute(Agent agent)
         {
-            agent.Say("Fussin' over food");
+            agent.Say("Tastes real good too!");
+            agent.StateMachine.RevertToPreviousState();
         }
     }
 }

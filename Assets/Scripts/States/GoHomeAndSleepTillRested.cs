@@ -1,19 +1,18 @@
-
-
-namespace Assets.Scripts.States
+ namespace Assets.Scripts.States
 {
+    using Agents;
+    using Message;
     using Scripts;
 
-    using Agents;
-    using UnityEngine;
-
-    public sealed class GoHomeAndSleepTillRested<T> : State<T> where T : Miner
+    public sealed class GoHomeAndSleepTillRested<T> : State  where T : Miner
     {
         private GoHomeAndSleepTillRested()
         {
             Enter += GoHomeAndSleepTilRested_Enter;
-            Exit += GoHomeAndSleepTilRested_Exit;
+            Exit += GoHomeAndSleepTilRested_Exit; 
         }
+
+
 
         #region [ Singleton Implementation ]
 
@@ -37,34 +36,31 @@ namespace Assets.Scripts.States
         }
         #endregion
 
-        void GoHomeAndSleepTilRested_Exit(object sender, AgentEventArgs<T> e)
+        void GoHomeAndSleepTilRested_Exit(object sender, AgentEventArgs<Agent> e)
         {
 
         }
 
-        void GoHomeAndSleepTilRested_Enter(object sender, AgentEventArgs<T> e)
+        void GoHomeAndSleepTilRested_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            Debug.Log("Walkin' Home");
-            Debug.Log(e.Agent.ToString());
+            e.Agent.Say("Walkin' Home");
             e.Agent.ChangeLocation(LocationType.HomeSweetHome);
+            Messenger.Broadcast(MessageType.HiHoneyImHome.ToString(),new MessageEventArgs<Agent>(e.Agent, new Telegram{MessageType = MessageType.HiHoneyImHome}));
         }
 
-
-        public override void Execute(T agent)
+        public override void Execute(Agent agent)
         {
-            if (!agent.IsTired())
+            var miner = (T) agent;
+            if (!miner.IsTired())
             {
-                Debug.Log("All mah fatigue has drained away. Time to find more gold!");
-                Debug.Log(agent.ToString());
+                agent.Say("All mah fatigue has drained away. Time to find more gold!");
 
-                agent.ChangeState(EnterMineAndDigForNugget<T>.Instance);
+                agent.ChangeState<T>(EnterMineAndDigForNugget<T>.Instance);
             }
             else
             {
-                agent.Rest();
-                Debug.Log("ZZZZZ....");
-                Debug.Log(agent.ToString());
-
+                miner.Rest();
+                agent.Say("ZZZZZ....");
             }
         }
     }

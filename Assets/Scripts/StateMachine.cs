@@ -5,21 +5,21 @@ using Assets.Scripts.Agents;
 
 namespace Assets.Scripts
 {
-    public class StateMachine<T> : IStateMachine<T> 
+    public class StateMachine : IStateMachine  
     {
 
-        public IState<T> CurrentState { get; set; }
+        public IState  CurrentState { get; set; }
 
 
-        public IState<T> GlobalState { get; set; }
+        public IState  GlobalState { get; set; }
 
 
-        public IState<T> PreviousState { get; set; }
+        public IState PreviousState { get; set; }
 
 
-        public T Agent { get; set; }
+        public Agent Agent { get; set; }
 
-        public StateMachine(T agent)
+        public StateMachine(Agent agent)
         {
             Agent = agent;
         }
@@ -37,7 +37,7 @@ namespace Assets.Scripts
         }
 
 
-        public void ChangeState(IState<T> newState)
+        public void ChangeState(IState  newState)
         {
 			if (newState == null)
 				throw new ArgumentNullException("newState","The input state cannot be null");
@@ -45,12 +45,12 @@ namespace Assets.Scripts
             PreviousState = CurrentState;
 
 			if (CurrentState != null)
-            	CurrentState.OnExit(new AgentEventArgs<T>(Agent));
+            	CurrentState.OnExit(new AgentEventArgs<Agent>(Agent));
 
             CurrentState = newState;
 
 
-            CurrentState.OnEnter(new AgentEventArgs<T>(Agent));
+            CurrentState.OnEnter(new AgentEventArgs<Agent>(Agent));
 
         }
     }

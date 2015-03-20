@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿
+using Assets.Scripts.Agents;
 
 namespace Assets.Scripts.Message
 {
-    public class MessageEventArgs<T> : EventArgs
+    using System;
+
+    public class MessageEventArgs<T> : EventArgs where T : Agent
     {
         public Telegram Telegram { get; set; }
         public T Agent { get; set; }

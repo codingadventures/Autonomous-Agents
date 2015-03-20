@@ -1,19 +1,16 @@
-﻿using System;
-using Assets.Scripts.Agents;
-using Assets.Scripts.Message;
-
-namespace Assets.Scripts
+﻿namespace Assets.Scripts
 {
+    using Agents;
+    using System;
 
-    public abstract class State<T> : IState<T>
+    public abstract class State : IState
     {
-       
-        public event EventHandler<AgentEventArgs<T>> Enter;
-        public event EventHandler<AgentEventArgs<T>> Exit;
-        public event EventHandler<MessageEventArgs<T>> Message;
+
+        public event EventHandler<AgentEventArgs<Agent>> Enter;
+        public event EventHandler<AgentEventArgs<Agent>> Exit; 
 
 
-        public virtual void OnEnter(AgentEventArgs<T> aea)
+        public virtual void OnEnter(AgentEventArgs<Agent> aea)
         {
             var handler = Enter;
             if (handler != null)
@@ -22,7 +19,7 @@ namespace Assets.Scripts
             }
         }
 
-        public virtual void OnExit(AgentEventArgs<T> aea)
+        public virtual void OnExit(AgentEventArgs<Agent> aea)
         {
             var handler = Exit;
             if (handler != null)
@@ -30,18 +27,9 @@ namespace Assets.Scripts
                 handler(this, aea);
             }
         }
+         
 
-        public void OnMessage(MessageEventArgs<T> aea)
-        {
-            var handler = Message;
-            if (handler != null)
-            {
-                handler(this, aea);
-            }
-        }
-
-		
-		public abstract void Execute(T agent);
+        public abstract void Execute(Agent agent);
 
 
     }

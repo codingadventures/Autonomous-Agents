@@ -1,19 +1,18 @@
 
 
 namespace Assets.Scripts.States
-{ 
+{
     using Scripts;
     using Agents;
-    using UnityEngine;
 
-    public sealed class VisitBankAndDepositGold<T> : State<T> where T : Miner
+    public sealed class VisitBankAndDepositGold<T> : State   where T : Miner
     {
 
         private VisitBankAndDepositGold()
         {
             Enter += VisitBankAndDepositGold_Enter;
             Exit += VisitBankAndDepositGold_Exit;
-            
+
         }
 
         #region [ Singleton Implementation ]
@@ -37,33 +36,34 @@ namespace Assets.Scripts.States
         }
         #endregion
 
-        void VisitBankAndDepositGold_Enter(object sender, AgentEventArgs<T> e)
+        void VisitBankAndDepositGold_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            Debug.Log("Goin' to the bank. Yes siree");
+            e.Agent.Say("Goin' to the bank. Yes siree");
             e.Agent.ChangeLocation(LocationType.Bank);
         }
 
-        void VisitBankAndDepositGold_Exit(object sender, AgentEventArgs<T> e)
+        void VisitBankAndDepositGold_Exit(object sender, AgentEventArgs<Agent> e)
         {
-            Debug.Log("Leavin' the Bank");
+            e.Agent.Say("Leavin' the Bank");
         }
 
         #region implemented abstract members of State
 
-        public override void Execute(T agent)
+        public override void Execute(Agent agent)
         {
-            agent.DepositMoney(agent.GoldCarried);
+            var miner = (T) agent;
+            miner.DepositMoney(miner.GoldCarried);
 
-            Debug.Log("Depositing gold. Total savings now: " + agent.MoneyInBank);
+            agent.Say("Depositing gold. Total savings now: " + miner.MoneyInBank);
 
-            if (agent.IsRich())
+            if (miner.IsRich())
             {
-                Debug.Log("WooHoo! Rich enough for now. Back home to mah li'lle lady");
-                agent.ChangeState(GoHomeAndSleepTillRested<T>.Instance);
+                agent.Say("WooHoo! Rich enough for now. Back home to mah li'lle lady");
+                agent.ChangeState<T>(GoHomeAndSleepTillRested<T>.Instance);
             }
             else
             {
-                agent.ChangeState(EnterMineAndDigForNugget<T>.Instance);
+                agent.ChangeState<T>(EnterMineAndDigForNugget<T>.Instance);
             }
         }
 

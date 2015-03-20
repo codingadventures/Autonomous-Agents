@@ -1,7 +1,9 @@
+
 namespace Assets.Scripts.States
-{ 
+{
+    using Agents;
 	
-	public class MinerGlobalState<T> : State<T>
+	public class MinerGlobalState<T> : State where T : Miner
 	{
 	 
 		#region [ Singleton Implementation ]
@@ -32,7 +34,7 @@ namespace Assets.Scripts.States
 
 		#region implemented abstract members of State
 
-		public override void Execute (T agent)
+		public override void Execute (Agent agent)
 		{ 
 
 		}

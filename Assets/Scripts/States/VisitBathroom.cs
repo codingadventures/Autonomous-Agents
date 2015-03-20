@@ -3,9 +3,8 @@
 namespace Assets.Scripts.States
 {
     using Agents;
-    using UnityEngine;
 
-    public sealed class VisitBathroom<T>: State<T> where T : Elsa
+    public sealed class VisitBathroom<T>: State where T : Elsa
     {
          
         #region [ Singleton Implementation ]
@@ -36,19 +35,19 @@ namespace Assets.Scripts.States
         }
         #endregion
 
-        private void VisitBathroom_Enter(object sender, AgentEventArgs<T> e)
+        private void VisitBathroom_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            Debug.Log("Walkin' to the can. Need to powda mah pretty li'lle nose");
+            e.Agent.Say("Walkin' to the can. Need to powda mah pretty li'lle nose");
         }
 
-        private void VisitBathroom_Exit(object sender, AgentEventArgs<T> e)
+        private void VisitBathroom_Exit(object sender, AgentEventArgs<Agent> e)
         {
-            Debug.Log("Leavin' the Jon");
+            e.Agent.Say("Leavin' the Jon");
         }
 
-        public override void Execute(T agent)
+        public override void Execute(Agent agent)
         {
-            Debug.Log("Ahhhhhh! Sweet relief!");
+            agent.Say("Ahhhhhh! Sweet relief!");
             agent.StateMachine.RevertToPreviousState();  // this completes the state blip
         }
     }

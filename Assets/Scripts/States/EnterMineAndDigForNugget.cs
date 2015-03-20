@@ -1,19 +1,18 @@
-﻿using System;
-using Assets.Scripts.Agents;
-using UnityEngine;
-
+﻿
 namespace Assets.Scripts.States
 {
-	/// <summary>
-	/// Enter mine and Dig for Nugget
-	/// </summary>
-    public sealed class EnterMineAndDigForNugget<T> : State<T> where T : Miner
+    using Agents;
+
+    /// <summary>
+    /// Enter mine and Dig for Nugget
+    /// </summary>
+    public sealed class EnterMineAndDigForNugget<T> : State  where T : Miner
     {
-		private EnterMineAndDigForNugget()
-		{
-			Enter += EnterMineAndDigForNugget_Enter;
-			Exit += EnterMineAndDigForNugget_Exit;
-		}
+        private EnterMineAndDigForNugget()
+        {
+            Enter += EnterMineAndDigForNugget_Enter;
+            Exit += EnterMineAndDigForNugget_Exit;
+        }
 
 
         #region [ Singleton Implementation ]
@@ -37,37 +36,38 @@ namespace Assets.Scripts.States
         }
         #endregion
 
-		void EnterMineAndDigForNugget_Enter(object sender, AgentEventArgs<T> e)
+        void EnterMineAndDigForNugget_Enter(object sender, AgentEventArgs<Agent> e)
         {
             if (e.Agent.Location != LocationType.Goldmine)
-			{
-				Debug.Log("Walkin' to the goldmine: AgentId" + e.Agent.NextValidId);
-				e.Agent.ChangeLocation(LocationType.Goldmine);
-			}
+            {
+                e.Agent.Say("Walkin' to the goldmine");
+                e.Agent.ChangeLocation(LocationType.Goldmine);
+            }
         }
-       
-        void EnterMineAndDigForNugget_Exit(object sender, AgentEventArgs<T> e)
+
+        void EnterMineAndDigForNugget_Exit(object sender, AgentEventArgs<Agent> e)
         {
-			Debug.Log("Ah'm leavin' the gold mine with mah pockets full o' sweet gold");
+            e.Agent.Say("Ah'm leavin' the gold mine with mah pockets full o' sweet gold");
         }
 
-        public override void Execute(T agent)
-        { 
-			agent.AddGoldToInventory(1);
+        public override void Execute(Agent agent)
+        {
+            var miner = (T) agent;
+            miner.AddGoldToInventory(1);
 
-			agent.IncreaseFatigue();
+            miner.IncreaseFatigue();
 
-			Debug.Log("Pickin' up a nugget");
+            miner.Say("Pickin' up a nugget");
 
-			if (agent.IsPocketFull())
-			{
-				agent.ChangeState(VisitBankAndDepositGold<T>.Instance);
-			}
+            if (miner.IsPocketFull())
+            {
+                miner.ChangeState<T>(VisitBankAndDepositGold<T>.Instance);
+            }
 
-			if (agent.IsThirsty())
-			{
-				agent.ChangeState(QuenchThirst<T>.Instance);
-			}
+            if (miner.IsThirsty())
+            {
+                miner.ChangeState<T>(QuenchThirst<T>.Instance);
+            }
         }
     }
 }

@@ -1,16 +1,14 @@
-﻿using System.Collections.Generic; 
-using System.Linq;
-using System.Text;
-using Assets.Scripts.Agents;
-using UnityEngine;
-using Random = System.Random;
+﻿using System;
 
 namespace Assets.Scripts.States
 {
-    public class DoHousework<T> : State<T> where T : Elsa
+    using Agents;
+    using Random = Random;
+
+    public class DoHousework<T> : State where T : Elsa
     {
         private static readonly Random Random = new Random();
-       
+
         #region [ Singleton Implementation ]
 
         private DoHousework()
@@ -18,7 +16,7 @@ namespace Assets.Scripts.States
             Enter += DoHousework_Enter;
         }
 
-     
+
 
         public static DoHousework<T> Instance { get { return Nested.instance; } }
 
@@ -40,24 +38,24 @@ namespace Assets.Scripts.States
         }
         #endregion
 
-        private void DoHousework_Enter(object sender, AgentEventArgs<T> e)
+        private void DoHousework_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            Debug.Log("Time to do some more housework!");
+            e.Agent.Say("Time to do some more housework!");
         }
 
-        public override void Execute(T agent)
+        public override void Execute(Agent agent)
         {
             switch (Random.Next(3))
             {
                 case 0:
-                    Debug.Log("Moppin' the floor");
+                    agent.Say("Moppin' the floor");
                     break;
                 case 1:
-                    Debug.Log("Washin' the dishes");
+                    agent.Say("Washin' the dishes");
                     break;
                 case 2:
-                    Debug.Log("Makin' the bed");
-                    break; 
+                    agent.Say("Makin' the bed");
+                    break;
             }
         }
     }

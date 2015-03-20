@@ -1,15 +1,18 @@
-﻿namespace Assets.Scripts.States
-{
+﻿
 
-    public class WifeGlobalState<T> : State<T>
+namespace Assets.Scripts.States
+{
+    using Agents;
+
+    public class WifeGlobalState<T> : State where T : Elsa
     {
+        static System.Random Random = new System.Random();
 
         #region [ Singleton Implementation ]
         public static WifeGlobalState<T> Instance { get { return Nested.instance; } }
 
         private WifeGlobalState()
-        {
-
+        { 
         }
 
         /// This is a fully lazy initialization implementation
@@ -30,11 +33,16 @@
         }
         #endregion
 
+       
         #region implemented abstract members of State
 
-        public override void Execute(T agent)
+        public override void Execute(Agent agent)
         {
-
+            // There's always a 10% chance of a state blip in which MinersWife goes to the bathroom
+            if (Random.Next(10) == 1 && !agent.StateMachine.CurrentState.Equals(VisitBathroom<T>.Instance))
+            {
+                agent.ChangeState<T>(VisitBathroom<T>.Instance);
+            }
         }
 
         #endregion

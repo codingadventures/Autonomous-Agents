@@ -4,21 +4,18 @@ using Assets.Scripts.Agents;
 namespace Assets.Scripts
 {
     using System;
-    using Message;
 
 
-    public interface IState<T>
+    public interface IState 
     {
-        event EventHandler<AgentEventArgs<T>> Enter;
-        event EventHandler<AgentEventArgs<T>> Exit;
-        event EventHandler<MessageEventArgs<T>> Message;
-        
-        void OnEnter(AgentEventArgs<T> aea);
+        event EventHandler<AgentEventArgs<Agent>> Enter;
+        event EventHandler<AgentEventArgs<Agent>> Exit;
 
-        void OnExit(AgentEventArgs<T> aea);
+        void OnEnter(AgentEventArgs<Agent> aea);
 
-        void OnMessage(MessageEventArgs<T> telegram);
-
-        void Execute(T agent);
+        void OnExit(AgentEventArgs<Agent> aea);
+          
+        void Execute(Agent agent);
     }
+     
 }

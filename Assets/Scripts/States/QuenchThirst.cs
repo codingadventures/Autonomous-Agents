@@ -1,11 +1,8 @@
- 
 namespace Assets.Scripts.States
 {
-
     using Agents;
-    using UnityEngine;
 
-    public sealed class QuenchThirst<T> : State<T> where T : Miner
+    public sealed class QuenchThirst<T> : State  where T : Miner
 	{
  
 		private QuenchThirst ()
@@ -36,28 +33,29 @@ namespace Assets.Scripts.States
 		}
 		#endregion
 
-		void QuenchThirst_Enter (object sender, AgentEventArgs<T> e)
+		void QuenchThirst_Enter (object sender, AgentEventArgs<Agent> e)
 		{
 			if (e.Agent.Location != LocationType.Saloon)
 			{
-				Debug.Log("Boy, ah sure is thusty! Walking to the saloon");
+				e.Agent.Say("Boy, ah sure is thusty! Walking to the saloon");
 				e.Agent.ChangeLocation(LocationType.Saloon);
 			}
 		}
-		
-		void QuenchThirst_Exit (object sender, AgentEventArgs<T> e)
+
+        void QuenchThirst_Exit(object sender, AgentEventArgs<Agent> e)
 		{
-			Debug.Log("Leaving the saloon, feelin' good");
+            e.Agent.Say("Leaving the saloon, feelin' good");
 		}
 
 		#region implemented abstract members of State
 
-		public override void Execute (T agent)
+		public override void Execute (Agent agent)
 		{
-			agent.Drink();
-			agent.SpendMoney(2);
-			Debug.Log("That's mighty fine sippin' liquer");
-			agent.ChangeState(EnterMineAndDigForNugget<T>.Instance);
+		    var miner = (T) agent;
+            miner.Drink();
+            miner.SpendMoney(2);
+			agent.Say("That's mighty fine sippin' liquer");
+			agent.ChangeState<T>(EnterMineAndDigForNugget<T>.Instance);
 		}
 
 		#endregion
