@@ -41,12 +41,12 @@ namespace Assets.Scripts.Pathfinding
             }
         }
 
-        Node[] FindPath(Vector3 start, Vector3 end)
-        {
+        //Node[] FindPath(Vector3 start, Vector3 end)
+        //{
             
 
 
 
-        }
+        //}
     }
 }
