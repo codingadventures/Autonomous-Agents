@@ -1,52 +1,223 @@
 ﻿
+
+
 namespace Assets.Scripts.Pathfinding
 {
     using UnityEngine;
+    using C5;
+    using System.Collections.Generic;
+    using System.Linq;
+
     public class Grid
     {
         public readonly Node[,] InternalGrid;
         private readonly Vector3 _worldPosition;
-
-        public Grid(Vector3 worldPosition, int width, int height, float sample)
+        private readonly int _sampledWidth;
+        private readonly int _sampledHeight;
+        private readonly float _sample;
+        private readonly Terrain _terrain;
+        private readonly List<Location> _directions = new List<Location>
         {
-            var w = (int)Mathf.Ceil(width / sample);
-            var h = (int)Mathf.Ceil(height / sample);
+            new Location(1, 0),
+            new Location(0, 1),
+            new Location(-1, 0),
+            new Location(0, -1),
+            new Location(1, 1),
+            new Location(-1, -1),
+            new Location(-1,  1),
+            new Location( 1,  -1),
 
-            InternalGrid = new Node[w, h];
-            _worldPosition = worldPosition;
+        };
 
-            InitGrid(w, h, sample);
+        public Grid(Terrain terrain, float sample)
+        {
+            _terrain = terrain;
+
+            _worldPosition = terrain.GetPosition();  
+            var width = (int)terrain.terrainData.size.x;
+            var height = (int)terrain.terrainData.size.z;
+
+            _sampledWidth = (int)Mathf.Ceil(width / sample);
+            _sampledHeight = (int)Mathf.Ceil(height / sample);
+            _sample = sample;
+            InternalGrid = new Node[_sampledWidth, _sampledHeight];
+          
+            //Build the Grid [width,height] --> O(n^2)
+            InitGrid();
+            //Initialize the edges/neighboots --> O(n^2) 
+            InitEdges();
         }
 
-        private void InitGrid(int w, int h, float sample)
+        private void InitGrid()
         {
-            for (var i = 0; i < w; i++)
+            for (var i = 0; i < _sampledWidth; i++)
             {
-                for (var j = 0; j < h; j++)
+                for (var j = 0; j < _sampledHeight; j++)
                 {
-                    var x = sample * 0.5f * (2 * i + 1); //I calculate the center of each grid i * sample + sample / 2
-                    var z = sample * 0.5f * (2 * j + 1);
+                    var x = _sample * 0.5f * (2 * i + 1); //I calculate the center of each grid i * sample + sample / 2
+                    var z = _sample * 0.5f * (2 * j + 1);
 
                     var pos = new Vector3(x, 0, z) + _worldPosition;
 
-                    var terrainheight = Terrain.activeTerrain.SampleHeight(pos);
+                    var terrainheight = _terrain.SampleHeight(pos);
                     pos.y = terrainheight;
                     var dir = new Vector3(0, -10, 0);
                     RaycastHit hit;
                     var intersect = Physics.Raycast(pos + new Vector3(0, 10, 0), dir, out hit, 10);
                     var cost = intersect ? int.MaxValue : 1;
-
-                    InternalGrid[i, j] = new Node(cost, pos);
+                    var node = new Node(cost, new Location(i, j), pos) { IsWalkable = !intersect };
+                    InternalGrid[i, j] = node;
                 }
             }
         }
 
-        //Node[] FindPath(Vector3 start, Vector3 end)
-        //{
-            
+        private void InitEdges()
+        {
+            for (var i = 0; i < _sampledWidth; i++)
+            {
+                for (var j = 0; j < _sampledHeight; j++)
+                {
+                    var node = InternalGrid[i, j];
 
+                    var neighboors = FindNeighboors(node, i, j);
+                    node.Neighboors.AddRange(neighboors);
+                }
+            }
+        }
 
+        private IEnumerable<Node> FindNeighboors(Node node, int i, int j)
+        {
+            var neighboors = new List<Node>(4);
 
-        //}
+            foreach (var point in _directions)
+            {
+                if (0 > i + point.X || i + point.X >= _sampledWidth || 0 > j + point.Y || j + point.Y >= _sampledHeight)
+                    continue;
+
+                var neighNode = InternalGrid[i + point.X, j + point.Y];
+
+                if (neighNode.IsWalkable)
+                    neighboors.Add(neighNode);
+            }
+
+            return neighboors;
+        }
+
+        public List<Node> BreadthFirstSearch(Vector3 start, Vector3 end)
+        {
+            var frontier = new Queue<Node>();
+            var cameFrom = new Dictionary<string, Node>();
+            var startNode = FindNode(start);
+            var endNode = FindNode(end);
+
+            frontier.Enqueue(startNode);
+            cameFrom.Add(startNode.ToString(), null);
+
+            while (frontier.Any())
+            {
+                //var a = frontier.FindMin();
+                //frontier.DeleteMin();
+                var node = frontier.Dequeue();
+                if (node == endNode)
+                    break;
+                foreach (var neighboor in node.Neighboors.Where(neighboor => !cameFrom.ContainsKey(neighboor.ToString())))
+                {
+                    frontier.Enqueue(neighboor);
+                    cameFrom.Add(neighboor.ToString(), node);
+                }
+
+            }
+
+            var current = endNode;
+            var path = new List<Node> { current };
+
+            while (current != startNode)
+            {
+                if (!cameFrom.ContainsKey(current.ToString())) continue;
+
+                current = cameFrom[current.ToString()];
+                path.Add(current);
+            }
+
+            return path;
+        }
+
+        public List<Node> AStarSearch(Vector3 start, Vector3 end)
+        {
+            var frontier = new IntervalHeap<Node>(new NodeComparer());
+            var cameFrom = new Dictionary<string, Node>();
+            //var costSoFar = new Dictionary<string, int>();
+
+            var startNode = FindNode(start);
+            var endNode = FindNode(end);
+
+            frontier.Add(startNode);
+            cameFrom.Add(startNode.ToString(), null);
+            //costSoFar.Add(startNode.ToString(), 0);
+
+            while (frontier.Any())
+            {
+                var currentNode = frontier.FindMin();
+                frontier.DeleteMin();
+
+                if (currentNode == endNode)
+                    break;
+                
+                foreach (var neighbor in currentNode.Neighboors)
+                {
+                    var neighborName = neighbor.ToString();
+                   
+                    if (cameFrom.ContainsKey(neighborName))
+                        continue;
+
+                    var newCost = Heuristic(endNode, neighbor);
+
+                    neighbor.Cost = newCost;
+
+                    frontier.Add(neighbor);
+                    cameFrom.Add(neighborName, currentNode);
+                }
+
+            }
+
+            var current = endNode;
+            var path = new List<Node> { current };
+
+            while (current != startNode)
+            {
+                if (!cameFrom.ContainsKey(current.ToString())) continue;
+
+                current = cameFrom[current.ToString()];
+                path.Add(current);
+            }
+
+            return path;
+        }
+
+        Node FindNode(Vector3 positionVector3)
+        {
+            var i = Mathf.RoundToInt(positionVector3.x / _sample);
+            var j = Mathf.RoundToInt(positionVector3.z / _sample);
+
+            i = Mathf.Clamp(i, 0, _sampledWidth);
+            j = Mathf.Clamp(j, 0, _sampledHeight);
+
+            return InternalGrid[i, j];
+
+        }
+
+        /// <summary>
+        /// Heuristics on the specified a based on the Manhattan distance
+        /// </summary>
+        /// <param name="a">The a.</param>
+        /// <param name="b">The goal a.</param>
+        /// <returns></returns>
+        float Heuristic(Node a, Node b)
+        {
+            var dx = Mathf.Abs(a.Position.x - b.Position.x);
+            var dz = Mathf.Abs(a.Position.z - b.Position.z);
+
+            return 1.0f * (dx + dz);
+        }
     }
 }
