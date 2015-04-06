@@ -9,8 +9,7 @@ namespace Assets.Scripts.States
     {
 
         private VisitBankAndDepositGold()
-        {
-            Enter += VisitBankAndDepositGold_Enter;
+        { 
             Exit += VisitBankAndDepositGold_Exit;
 
         }
@@ -36,11 +35,7 @@ namespace Assets.Scripts.States
         }
         #endregion
 
-        void VisitBankAndDepositGold_Enter(object sender, AgentEventArgs<Agent> e)
-        {
-            e.Agent.Say("Goin' to the bank. Yes siree");
-            e.Agent.ChangeLocation(LocationType.Bank);
-        }
+       
 
         void VisitBankAndDepositGold_Exit(object sender, AgentEventArgs<Agent> e)
         {
@@ -59,7 +54,7 @@ namespace Assets.Scripts.States
             if (miner.IsRich())
             {
                 agent.Say("WooHoo! Rich enough for now. Back home to mah li'lle lady");
-                agent.ChangeState<T>(GoHomeAndSleepTillRested<T>.Instance);
+                agent.ChangeState<T>(SleepTillRested<T>.Instance);
             }
             else
             {

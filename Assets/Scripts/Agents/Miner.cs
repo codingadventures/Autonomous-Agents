@@ -1,4 +1,5 @@
 
+using System;
 using System.Linq;
 
 namespace Assets.Scripts.Agents
@@ -34,11 +35,6 @@ namespace Assets.Scripts.Agents
 
         #endregion
 
-        #region [ Private Fields ]
-
-        private int _nodeIndex;
-        #endregion
-
         #region [ Constructor ]
         public Miner()
         {
@@ -63,7 +59,7 @@ namespace Assets.Scripts.Agents
         {
             base.Start();
 
-            StateMachine.ChangeState(GoHomeAndSleepTillRested<Miner>.Instance);
+            StateMachine.ChangeState(GoHome<Miner>.Instance);
 
             //StartCoroutine(PerformUpdate());
         }
@@ -72,15 +68,17 @@ namespace Assets.Scripts.Agents
         {
             Thirst += 1;
 
-            if (!MoveToPoint(Path.ElementAt(_nodeIndex))) return;
+            if (Path.Any() && !MoveToPoint(Path.ElementAt(NodeIndex)))
+                return;
 
-            if (_nodeIndex == 0)
-            {
+            if (NodeIndex == 0)
                 StateMachine.Update();
-                Path = Enumerable.Empty<Vector3>();
-            }
             else
-                _nodeIndex -= 1;
+                NodeIndex -= 1;
+            
+           
+
+
 
         }
 
@@ -92,7 +90,13 @@ namespace Assets.Scripts.Agents
 
         public override string ToString()
         {
-            return string.Format("[Miner - {5}: GoldCarried={0}, MoneyInBank={1}, Thirst={2}, Fatigue={3}, LocationType={4}]\n", GoldCarried, MoneyInBank, Thirst, Fatigue, Location, Id);
+            var message = string.Format("[<color=red>Miner Bob - Id: {0}", Id);
+
+            if (Verbosity == Verbosity.Verbose)
+                message += String.Format("GoldCarried={0}, MoneyInBank={1}, Thirst={2}, Fatigue={3}, LocationType={4}]" + Environment.NewLine, GoldCarried, MoneyInBank, Thirst, Fatigue, Location);
+
+            message += "</color>";
+            return message;
         }
 
         #endregion

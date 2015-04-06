@@ -1,4 +1,6 @@
-﻿
+﻿ 
+
+using System.Linq;
 
 namespace Assets.Scripts.Agents
 {
@@ -8,12 +10,14 @@ namespace Assets.Scripts.Agents
     using System.Collections.Generic;
     using Pathfinding;
 
-    public class Agent : MonoBehaviour
+    public abstract class Agent : MonoBehaviour
     {
         #region [ Public Field - Used By Unity Interface ]
         public float UpdateStep;
 
         public int MoveSpeed;
+
+        public Verbosity Verbosity;
         #endregion
 
         #region [ Protected Field ]
@@ -22,12 +26,14 @@ namespace Assets.Scripts.Agents
         protected IEnumerable<Vector3> Path;
 
         protected PathFinder PathFinder;
-
-        protected LocationManager LocationManager;
+         
+        protected int NodeIndex;
         #endregion
 
         #region[ Public Properties ]
         public IStateMachine StateMachine { get; protected set; }
+
+        public LocationManager LocationManager { get; protected set; }
 
         public int Id { get; set; }
         public LocationType Location { get; protected set; }
@@ -46,11 +52,13 @@ namespace Assets.Scripts.Agents
             Location = locationType;
             var destination = LocationManager.Locations[Location];
             Path = PathFinder.CalculatePath(transform.position, destination.position);
+            NodeIndex = Path.Count();
         }
 
         public void Say(string vocalMessage)
         {
-            var formattedMessage = string.Format("Agent ID: {0} - Message {1}", Id, vocalMessage);
+            var formattedMessage = string.Format("{0} Message {1}", ToString() , vocalMessage);
+            
             if (Debug.isDebugBuild)
                 Debug.Log(formattedMessage);
 
@@ -67,6 +75,7 @@ namespace Assets.Scripts.Agents
             }
         }
 
+        public abstract override string ToString();
         #endregion
 
         #region [ Unity Monobehavior Events ]
@@ -79,5 +88,11 @@ namespace Assets.Scripts.Agents
 
         #endregion
 
+    }
+
+    public enum Verbosity
+    {
+        Silent,
+        Verbose
     }
 }

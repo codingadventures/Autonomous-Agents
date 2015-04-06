@@ -6,8 +6,7 @@ namespace Assets.Scripts.States
 	{
  
 		private QuenchThirst ()
-		{
-			Enter += QuenchThirst_Enter;
+		{ 
 			Exit  += QuenchThirst_Exit;
 		}
 
@@ -33,14 +32,7 @@ namespace Assets.Scripts.States
 		}
 		#endregion
 
-		void QuenchThirst_Enter (object sender, AgentEventArgs<Agent> e)
-		{
-			if (e.Agent.Location != LocationType.Saloon)
-			{
-				e.Agent.Say("Boy, ah sure is thusty! Walking to the saloon");
-				e.Agent.ChangeLocation(LocationType.Saloon);
-			}
-		}
+		 
 
         void QuenchThirst_Exit(object sender, AgentEventArgs<Agent> e)
 		{

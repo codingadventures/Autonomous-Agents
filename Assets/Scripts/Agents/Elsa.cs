@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Message;
+﻿using System;
+using Assets.Scripts.Message;
 
 namespace Assets.Scripts.Agents
 {
@@ -32,6 +33,20 @@ namespace Assets.Scripts.Agents
             }
         }
 
+        #region [ Overrides ]
+        public override string ToString()
+        {
+            var message = string.Format("[<color=green>Wife Elsa - Id: {0}", Id);
+
+            if (Verbosity == Verbosity.Verbose)
+                message += string.Format("Cooking={0}, LocationType={1}]" + Environment.NewLine, Cooking, Location);
+
+            message += "</color>";
+            return message;
+        }
+        #endregion
+
+
         #region [ Unity Monobehavior Events ]
 
 
@@ -43,9 +58,11 @@ namespace Assets.Scripts.Agents
 
         }
 
-        // Use this for initialization
-        void Start()
+     
+        protected override void Start()
         {
+            base.Start();
+
             StateMachine.ChangeState(DoHousework<Elsa>.Instance);
             StartCoroutine(PerformUpdate());
         }

@@ -5,19 +5,19 @@ namespace Assets.Scripts.States
     using Message;
     using Scripts;
     using UnityEngine;
-    public sealed class GoHomeAndSleepTillRested<T> : State where T : Miner
+    public sealed class SleepTillRested<T> : State where T : Miner
     {
-        private GoHomeAndSleepTillRested()
+        private SleepTillRested()
         {
-            Enter += GoHomeAndSleepTilRested_Enter;
-            Exit += GoHomeAndSleepTilRested_Exit;
+            Enter += SleepTilRested_Enter;
+           
         }
 
 
 
         #region [ Singleton Implementation ]
 
-        public static GoHomeAndSleepTillRested<T> Instance { get { return Nested.instance; } }
+        public static SleepTillRested<T> Instance { get { return Nested.instance; } }
 
         /// This is a fully lazy initialization implementation
         /// Instantiation is triggered by the first reference to the static member of the nested class, 
@@ -33,19 +33,14 @@ namespace Assets.Scripts.States
             {
             }
 
-            internal static readonly GoHomeAndSleepTillRested<T> instance = new GoHomeAndSleepTillRested<T>();
+            internal static readonly SleepTillRested<T> instance = new SleepTillRested<T>();
         }
         #endregion
 
-        void GoHomeAndSleepTilRested_Exit(object sender, AgentEventArgs<Agent> e)
-        {
+      
 
-        }
-
-        void GoHomeAndSleepTilRested_Enter(object sender, AgentEventArgs<Agent> e)
+        void SleepTilRested_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            e.Agent.Say("Walkin' Home");
-            e.Agent.ChangeLocation(LocationType.HomeSweetHome);
             try
             {
                 Messenger.Broadcast(MessageType.HiHoneyImHome.ToString(), 

@@ -2,20 +2,21 @@
 namespace Assets.Scripts.States
 {
     using Agents;
-
-    /// <summary>
-    /// Enter mine and Dig for Nugget
-    /// </summary>
-    public sealed class EnterMineAndDigForNugget<T> : State  where T : Miner
+    using Scripts;
+    using UnityEngine;
+    public sealed class GoToMine<T> : State where T : Miner
     {
-        private EnterMineAndDigForNugget()
-        { 
-            Exit += EnterMineAndDigForNugget_Exit;
+
+        private GoToMine()
+        {
+            Enter += GoToMine_Enter;
         }
 
 
+
         #region [ Singleton Implementation ]
-        public static EnterMineAndDigForNugget<T> Instance { get { return Nested.instance; } }
+
+        public static GoToMine<T> Instance { get { return Nested.instance; } }
 
         /// This is a fully lazy initialization implementation
         /// Instantiation is triggered by the first reference to the static member of the nested class, 
@@ -31,35 +32,27 @@ namespace Assets.Scripts.States
             {
             }
 
-            internal static readonly EnterMineAndDigForNugget<T> instance = new EnterMineAndDigForNugget<T>();
+            internal static readonly GoToMine<T> instance = new GoToMine<T>();
         }
         #endregion
 
-        
 
-        void EnterMineAndDigForNugget_Exit(object sender, AgentEventArgs<Agent> e)
+        void GoToMine_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            e.Agent.Say("Ah'm leavin' the gold mine with mah pockets full o' sweet gold");
+            e.Agent.Say("Walkin' to the goldmine"); 
+            e.Agent.ChangeLocation(LocationType.Goldmine);
         }
 
         public override void Execute(Agent agent)
         {
-            var miner = (T) agent;
-            miner.AddGoldToInventory(1);
+            var goldMinePosition = agent.LocationManager.Locations[LocationType.Goldmine].position;
 
-            miner.IncreaseFatigue();
-
-            miner.Say("Pickin' up a nugget");
-
-            if (miner.IsPocketFull())
+            if (Vector3.Distance(goldMinePosition, agent.transform.position) <= 1.0f)
             {
-                miner.ChangeState<T>(VisitBankAndDepositGold<T>.Instance);
+                //We are arrived!!!
+                agent.ChangeState<T>(EnterMineAndDigForNugget<T>.Instance);
             }
 
-            if (miner.IsThirsty())
-            {
-                miner.ChangeState<T>(QuenchThirst<T>.Instance);
-            }
         }
     }
 }
