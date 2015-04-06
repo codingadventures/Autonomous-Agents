@@ -48,7 +48,9 @@ namespace Assets.Scripts.States
             e.Agent.ChangeLocation(LocationType.HomeSweetHome);
             try
             {
-                Messenger.Broadcast(MessageType.HiHoneyImHome.ToString(), new MessageEventArgs<Agent>(e.Agent, new Telegram { MessageType = MessageType.HiHoneyImHome }));
+                Messenger.Broadcast(MessageType.HiHoneyImHome.ToString(), 
+                    new MessageEventArgs<Agent>(e.Agent, 
+                        new Telegram { MessageType = MessageType.HiHoneyImHome }));
 
             }
             catch (Messenger.BroadcastException be)

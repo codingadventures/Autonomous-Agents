@@ -1,12 +1,11 @@
 
-
-using Assets.Scripts.Message;
+using System.Linq;
 
 namespace Assets.Scripts.Agents
 {
-    using System.Collections;
     using States;
     using UnityEngine;
+    using Message;
 
     public class Miner : Agent
     {
@@ -19,6 +18,8 @@ namespace Assets.Scripts.Agents
         public int MaxGoldCarried;
 
         public int RichnessThreshold;
+
+
 
         #endregion
 
@@ -33,12 +34,20 @@ namespace Assets.Scripts.Agents
 
         #endregion
 
+        #region [ Private Fields ]
 
+        private int _nodeIndex;
+        #endregion
+
+        #region [ Constructor ]
         public Miner()
         {
-            Message += Miner_Receive_Message;            
+            Message += Miner_Receive_Message;
         }
+        #endregion
+
         #region [ Unity Monobehavior Events ]
+
 
 
         void Awake()
@@ -50,37 +59,32 @@ namespace Assets.Scripts.Agents
         }
 
         // Use this for initialization
-        void Start()
+        protected override void Start()
         {
+            base.Start();
+
             StateMachine.ChangeState(GoHomeAndSleepTillRested<Miner>.Instance);
-             
-            StartCoroutine(PerformUpdate());
-        }
-        
-        void Miner_Receive_Message(object sender, MessageEventArgs<Agent> e)
-        {
-            switch (e.Telegram.MessageType)
-            {
-                case MessageType.StewsReady:
-                    Debug.Log("Message handled by " + e.Agent.Id + " at time ");
-                    Say(" Okay Hun, ahm a comin'!");
-                    ChangeState<Miner>(EatStew<Miner>.Instance);
-                    break;
-            }
+
+            //StartCoroutine(PerformUpdate());
         }
 
-
-        IEnumerator PerformUpdate()
+        void FixedUpdate()
         {
-            while (true)
-            {
-                Thirst += 1;
+            Thirst += 1;
 
+            if (!MoveToPoint(Path.ElementAt(_nodeIndex))) return;
+
+            if (_nodeIndex == 0)
+            {
                 StateMachine.Update();
-
-                yield return new WaitForSeconds(UpdateStep);
+                Path = Enumerable.Empty<Vector3>();
             }
+            else
+                _nodeIndex -= 1;
+
         }
+
+
 
         #endregion
 
@@ -155,6 +159,52 @@ namespace Assets.Scripts.Agents
             return Fatigue >= MaxFatigue;
         }
         #endregion
+
+
+        #region [ Private Methods ]
+        void Miner_Receive_Message(object sender, MessageEventArgs<Agent> e)
+        {
+            switch (e.Telegram.MessageType)
+            {
+                case MessageType.StewsReady:
+                    Debug.Log("Message handled by " + e.Agent.Id + " at time ");
+                    Say(" Okay Hun, ahm a comin'!");
+                    ChangeState<Miner>(EatStew<Miner>.Instance);
+                    break;
+            }
+        }
+
+        private bool MoveToPoint(Vector3 point)
+        {
+            //this is for dynamic waypoint, each unit creep have it's own offset pos
+            //point+=dynamicOffset;
+            // point += pathDynamicOffset;//+flightHeightOffset;
+
+            float dist = Vector3.Distance(point, transform.position);
+
+            //if the unit have reached the point specified
+            //~ if(dist<0.15f) return true;
+            if (dist < 0.005f) return true;
+
+            //rotate towards destination
+            //if (moveSpeed > 0)
+            //{
+            //    Quaternion wantedRot = Quaternion.LookRotation(point - transform.position);
+            //    //thisT.rotation = Quaternion.Slerp(thisT.rotation, wantedRot, rotateSpd * Time.deltaTime);
+            //}
+
+            //move, with speed take distance into accrount so the unit wont over shoot
+            Vector3 dir = (point - transform.position).normalized;
+            transform.Translate(dir * Mathf.Min(dist, MoveSpeed * Time.fixedDeltaTime), Space.World);
+
+            //distFromDestination -= (MoveSpeed * Time.fixedDeltaTime);
+
+            return false;
+        }
+
+
+        #endregion
+
     }
 
 }

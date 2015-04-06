@@ -1,7 +1,4 @@
-﻿
-
-
-namespace Assets.Scripts.Pathfinding
+﻿namespace Assets.Scripts.Pathfinding
 {
     using UnityEngine;
     using C5;
@@ -12,8 +9,9 @@ namespace Assets.Scripts.Pathfinding
     {
         public readonly Node[,] InternalGrid;
         private readonly Vector3 _worldPosition;
-        private readonly int _sampledWidth;
-        private readonly int _sampledHeight;
+        public int SampledWidth { get; private set; }
+        public   int SampledHeight { get; private set; }
+
         private readonly float _sample;
         private readonly Terrain _terrain;
         private readonly List<Location> _directions = new List<Location>
@@ -37,10 +35,10 @@ namespace Assets.Scripts.Pathfinding
             var width = (int)terrain.terrainData.size.x;
             var height = (int)terrain.terrainData.size.z;
 
-            _sampledWidth = (int)Mathf.Ceil(width / sample);
-            _sampledHeight = (int)Mathf.Ceil(height / sample);
+            SampledWidth = (int)Mathf.Ceil(width / sample);
+            SampledHeight = (int)Mathf.Ceil(height / sample);
             _sample = sample;
-            InternalGrid = new Node[_sampledWidth, _sampledHeight];
+            InternalGrid = new Node[SampledWidth, SampledHeight];
           
             //Build the Grid [width,height] --> O(n^2)
             InitGrid();
@@ -50,9 +48,11 @@ namespace Assets.Scripts.Pathfinding
 
         private void InitGrid()
         {
-            for (var i = 0; i < _sampledWidth; i++)
+            LayerMask mask = 1<< 2; //it's ignore raycast
+
+            for (var i = 0; i < SampledWidth; i++)
             {
-                for (var j = 0; j < _sampledHeight; j++)
+                for (var j = 0; j < SampledHeight; j++)
                 {
                     var x = _sample * 0.5f * (2 * i + 1); //I calculate the center of each grid i * sample + sample / 2
                     var z = _sample * 0.5f * (2 * j + 1);
@@ -61,9 +61,9 @@ namespace Assets.Scripts.Pathfinding
 
                     var terrainheight = _terrain.SampleHeight(pos);
                     pos.y = terrainheight;
-                    var dir = new Vector3(0, -10, 0);
+                     
                     RaycastHit hit;
-                    var intersect = Physics.Raycast(pos + new Vector3(0, 10, 0), dir, out hit, 10);
+                    var intersect = Physics.Raycast(pos + new Vector3(0, 10, 0), Vector3.down, out hit, Mathf.Infinity, ~mask );
                     var cost = intersect ? int.MaxValue : 1;
                     var node = new Node(cost, new Location(i, j), pos) { IsWalkable = !intersect };
                     InternalGrid[i, j] = node;
@@ -73,9 +73,9 @@ namespace Assets.Scripts.Pathfinding
 
         private void InitEdges()
         {
-            for (var i = 0; i < _sampledWidth; i++)
+            for (var i = 0; i < SampledWidth; i++)
             {
-                for (var j = 0; j < _sampledHeight; j++)
+                for (var j = 0; j < SampledHeight; j++)
                 {
                     var node = InternalGrid[i, j];
 
@@ -91,7 +91,7 @@ namespace Assets.Scripts.Pathfinding
 
             foreach (var point in _directions)
             {
-                if (0 > i + point.X || i + point.X >= _sampledWidth || 0 > j + point.Y || j + point.Y >= _sampledHeight)
+                if (0 > i + point.X || i + point.X >= SampledWidth || 0 > j + point.Y || j + point.Y >= SampledHeight)
                     continue;
 
                 var neighNode = InternalGrid[i + point.X, j + point.Y];
@@ -177,11 +177,12 @@ namespace Assets.Scripts.Pathfinding
                     frontier.Add(neighbor);
                     cameFrom.Add(neighborName, currentNode);
                 }
-
             }
 
             var current = endNode;
             var path = new List<Node> { current };
+
+            if (!cameFrom.ContainsKey(endNode.ToString())) return path;
 
             while (current != startNode)
             {
@@ -194,17 +195,25 @@ namespace Assets.Scripts.Pathfinding
             return path;
         }
 
-        Node FindNode(Vector3 positionVector3)
+        public Node FindNode(Vector3 positionVector3)
         {
             var i = Mathf.RoundToInt(positionVector3.x / _sample);
             var j = Mathf.RoundToInt(positionVector3.z / _sample);
 
-            i = Mathf.Clamp(i, 0, _sampledWidth);
-            j = Mathf.Clamp(j, 0, _sampledHeight);
+            i = Mathf.Clamp(i, 0, SampledWidth);
+            j = Mathf.Clamp(j, 0, SampledHeight);
 
             return InternalGrid[i, j];
 
         }
+
+        public Vector3 FindNodePosition(Vector3 position)
+        {
+            var node = FindNode(position);
+
+            return node.Position;
+        }
+        
 
         /// <summary>
         /// Heuristics on the specified a based on the Manhattan distance
@@ -218,6 +227,12 @@ namespace Assets.Scripts.Pathfinding
             var dz = Mathf.Abs(a.Position.z - b.Position.z);
 
             return 1.0f * (dx + dz);
+        }
+
+        public bool IsPositionWalkable(Vector3 position)
+        {
+            var node = FindNode(position);
+            return node.IsWalkable;
         }
     }
 }

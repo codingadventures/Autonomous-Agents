@@ -1,10 +1,10 @@
-﻿
-using System;
-
-namespace Assets.Scripts.Pathfinding
+﻿ namespace Assets.Scripts.Pathfinding
 {
     using UnityEngine;
     using System.Collections.Generic;
+
+    using System;
+    using System.Linq;
 
     public enum SearchType
     {
@@ -13,17 +13,11 @@ namespace Assets.Scripts.Pathfinding
         Both
     }
 
-    public class Pathfinder : MonoBehaviour
+    public class PathFinder : MonoBehaviour
     {
 
-        public GameObject Target;
-
-        private List<Node> _breadthFirstSearchPath;
-        private List<Node> _aStarPath;
-
-        private Vector3 _position;
+        private List<Node> _nodeGraph;
         private TerrainDiscretizer _terrainDiscretizer;
-
         public SearchType SearchType;
 
         // Use this for initialization
@@ -31,60 +25,64 @@ namespace Assets.Scripts.Pathfinding
         {
             _terrainDiscretizer = FindObjectOfType<TerrainDiscretizer>();
 
-            CalculatePath();
-           
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-            if (_position == transform.position) return;
 
-            CalculatePath();
-            
-        }
 
         public void OnDrawGizmos()
         {
-            if (_breadthFirstSearchPath != null)
+            if (_nodeGraph == null) return;
 
-                foreach (var node in _breadthFirstSearchPath)
-                {
-                    Gizmos.color = Color.red;
-                    Gizmos.DrawSphere(node.Position, 0.2f);
-                }
-
-            if (_aStarPath != null)
-                foreach (var node in _aStarPath)
+            foreach (var node in _nodeGraph)
+            {
+                if (!node.IsWalkable)
                 {
                     Gizmos.color = Color.cyan;
-                    Gizmos.DrawSphere(node.Position, 0.2f);
+                    Gizmos.DrawSphere(node.Position, _terrainDiscretizer.Sample * .15f);
                 }
+                else
+                {
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawSphere(node.Position, _terrainDiscretizer.Sample * .15f);
+                }
+            }
         }
 
-        private void CalculatePath()
+        public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end  )
         {
             switch (SearchType)
             {
                 case SearchType.AStar:
-                    _aStarPath = _terrainDiscretizer.Grid.AStarSearch(transform.position, Target.transform.position);
+                    _nodeGraph = _terrainDiscretizer.Grid.AStarSearch(start, end);
 
                     break;
                 case SearchType.BreadthFirstSearch:
-                    _breadthFirstSearchPath = _terrainDiscretizer.Grid.BreadthFirstSearch(transform.position, Target.transform.position);
+                    _nodeGraph = _terrainDiscretizer.Grid.BreadthFirstSearch(start, end);
 
                     break;
-                case SearchType.Both:
-                    _aStarPath = _terrainDiscretizer.Grid.AStarSearch(transform.position, Target.transform.position);
-                    _breadthFirstSearchPath = _terrainDiscretizer.Grid.BreadthFirstSearch(transform.position, Target.transform.position);
 
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            _position = transform.position;
+            return _nodeGraph.Select(node => node.Position) ;
 
+
+        }
+
+        public Node GetNearestNode(Vector3 startPosition)
+        {
+            return _terrainDiscretizer.Grid.FindNode(startPosition);
+        }
+
+        public List<Vector3> SmoothPath(List<Vector3> altPath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<Vector3> ForceSearch(Node startN, Node endN, Node targetNode)
+        {
+            throw new NotImplementedException();
         }
 
     }
