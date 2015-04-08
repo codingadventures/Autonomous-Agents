@@ -14,8 +14,7 @@ namespace Assets.Scripts.Pathfinding
         void Awake()
         {
             _terrain = GetComponent<Terrain>();
-            
-            var terrainSize = _terrain.terrainData.size;
+
             Grid = new Grid(_terrain, Sample);
         }
 
@@ -30,10 +29,15 @@ namespace Assets.Scripts.Pathfinding
             if (Grid == null) return;
 
             if (!DrawGrid) return;
-            
+
             foreach (var node in Grid.InternalGrid)
             {
-                Gizmos.color = node.Cost == 1 ? Color.green : Color.red;
+                if (node.IsWalkable)
+                    Gizmos.color = Color.Lerp(Color.green, Color.red, 1 - node.Cost);
+                else
+                    Gizmos.color = Color.red;
+
+
                 Gizmos.DrawSphere(node.Position, 0.2f);
             }
         }

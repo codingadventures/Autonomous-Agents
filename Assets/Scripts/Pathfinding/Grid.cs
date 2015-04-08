@@ -10,7 +10,7 @@
         public readonly Node[,] InternalGrid;
         private readonly Vector3 _worldPosition;
         public int SampledWidth { get; private set; }
-        public   int SampledHeight { get; private set; }
+        public int SampledHeight { get; private set; }
 
         private readonly float _sample;
         private readonly Terrain _terrain;
@@ -31,7 +31,7 @@
         {
             _terrain = terrain;
 
-            _worldPosition = terrain.GetPosition();  
+            _worldPosition = terrain.GetPosition();
             var width = (int)terrain.terrainData.size.x;
             var height = (int)terrain.terrainData.size.z;
 
@@ -39,7 +39,7 @@
             SampledHeight = (int)Mathf.Ceil(height / sample);
             _sample = sample;
             InternalGrid = new Node[SampledWidth, SampledHeight];
-          
+
             //Build the Grid [width,height] --> O(n^2)
             InitGrid();
             //Initialize the edges/neighboots --> O(n^2) 
@@ -48,7 +48,7 @@
 
         private void InitGrid()
         {
-            LayerMask mask = 1<< 2; //it's ignore raycast
+            LayerMask mask = 1 << 2; //it's ignore raycast
 
             for (var i = 0; i < SampledWidth; i++)
             {
@@ -61,11 +61,11 @@
 
                     var terrainheight = _terrain.SampleHeight(pos);
                     pos.y = terrainheight;
-                     
+
                     RaycastHit hit;
-                    var intersect = Physics.Raycast(pos + new Vector3(0, 10, 0), Vector3.down, out hit, Mathf.Infinity, ~mask );
+                    var intersect = Physics.Raycast(pos + new Vector3(0, 10, 0), Vector3.down, out hit, Mathf.Infinity, ~mask);
                     var cost = intersect ? int.MaxValue : 1;
-                    var node = new Node(cost, new Location(i, j), pos) { IsWalkable = !intersect };
+                    var node = new Node(cost, new Location(i, j), pos, isWalkable: !intersect);
                     InternalGrid[i, j] = node;
                 }
             }
@@ -162,11 +162,11 @@
 
                 if (currentNode == endNode)
                     break;
-                
+
                 foreach (var neighbor in currentNode.Neighboors)
                 {
                     var neighborName = neighbor.ToString();
-                   
+
                     if (cameFrom.ContainsKey(neighborName))
                         continue;
 
@@ -213,7 +213,7 @@
 
             return node.Position;
         }
-        
+
 
         /// <summary>
         /// Heuristics on the specified a based on the Manhattan distance

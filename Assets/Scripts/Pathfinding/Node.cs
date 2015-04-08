@@ -15,20 +15,21 @@ namespace Assets.Scripts.Pathfinding
 
         public List<Node> Neighboors { get; private set; }
 
-        public bool IsWalkable { get; set; }
+        public readonly bool IsWalkable; //{ get; private set; }
 
-        public Node(float cost, Location gridPosition, Vector3 position)
+        public Node(float cost, Location gridPosition, Vector3 position, bool isWalkable)
         {
             _gridPosition = gridPosition;
             Cost = cost;
             Position = position;
             Neighboors = new List<Node>(4);
+            IsWalkable = isWalkable;
         }
 
 
 
         public override string ToString()
-        {
+        { 
             return _gridPosition.ToString();
         }
 

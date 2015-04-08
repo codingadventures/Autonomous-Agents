@@ -28,6 +28,11 @@ namespace Assets.Scripts
             if (mine == null) throw new NullReferenceException("Mine game object is not available!");
 
             Locations.Add(LocationType.Goldmine, mine.transform);
+
+            var bank = GameObject.FindGameObjectWithTag("Bank");
+            if (bank == null) throw new NullReferenceException("Bank game object is not available!");
+
+            Locations.Add(LocationType.Bank, bank.transform);
         }
       
     }
