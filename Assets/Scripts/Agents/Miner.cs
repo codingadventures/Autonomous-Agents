@@ -51,7 +51,6 @@ namespace Assets.Scripts.Agents
             Id = Random.Range(0, 100);
             StateMachine = new StateMachine(this) { GlobalState = MinerGlobalState<Miner>.Instance };
             Messenger.AddListener<MessageEventArgs<Agent>>(MessageType.StewsReady.ToString(), OnMessage);
-
         }
 
         // Use this for initialization
@@ -59,27 +58,18 @@ namespace Assets.Scripts.Agents
         {
             base.Start();
 
-            StateMachine.ChangeState(GoHome<Miner>.Instance);
+            StateMachine.ChangeState(SleepTillRested<Miner>.Instance);
 
-            //StartCoroutine(PerformUpdate());
+            StartCoroutine(PerformUpdate());
         }
 
         void FixedUpdate()
         {
-            Thirst += 1;
 
-            if (Path.Any() && !MoveToPoint(Path.ElementAt(NodeIndex)))
+            if (!MoveToPoint(NodeIndex))
                 return;
 
-            if (NodeIndex == 0)
-                StateMachine.Update();
-            else
-                NodeIndex -= 1;
-            
-           
-
-
-
+            NodeIndex -= 1;
         }
 
 
@@ -171,6 +161,8 @@ namespace Assets.Scripts.Agents
             switch (e.Telegram.MessageType)
             {
                 case MessageType.StewsReady:
+                    if (Location != LocationType.HomeSweetHome) return;
+
                     Debug.Log("Message handled by " + e.Agent.Id + " at time ");
                     Say(" Okay Hun, ahm a comin'!");
                     ChangeState<Miner>(EatStew<Miner>.Instance);
@@ -178,8 +170,16 @@ namespace Assets.Scripts.Agents
             }
         }
 
-        private bool MoveToPoint(Vector3 point)
+        private bool MoveToPoint(int nodeIndex)
         {
+            if (nodeIndex < 0) return false;
+
+            if (!Path.Any()) return false;
+
+            if (Path.Count() <= nodeIndex) return false;
+
+            var point = Path.ElementAt(nodeIndex);
+
             //this is for dynamic waypoint, each unit creep have it's own offset pos
             //point+=dynamicOffset;
             // point += pathDynamicOffset;//+flightHeightOffset;

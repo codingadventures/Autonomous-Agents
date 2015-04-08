@@ -4,19 +4,19 @@ namespace Assets.Scripts.States
     using Agents;
     using Scripts;
     using UnityEngine;
-    public sealed class GoHome<T> : State where T : Miner
+    public sealed class WalkingTo<T> : State where T : Miner
     {
- 
-        private GoHome()
+
+        private WalkingTo()
         {
-            Enter += GoHome_Enter;
+            Enter += WalkingTo_Enter;
         }
 
 
 
         #region [ Singleton Implementation ]
 
-        public static GoHome<T> Instance { get { return Nested.instance; } }
+        public static WalkingTo<T> Instance { get { return Nested.instance; } }
 
         /// This is a fully lazy initialization implementation
         /// Instantiation is triggered by the first reference to the static member of the nested class, 
@@ -32,27 +32,27 @@ namespace Assets.Scripts.States
             {
             }
 
-            internal static readonly GoHome<T> instance = new GoHome<T>();
+            internal static readonly WalkingTo<T> instance = new WalkingTo<T>();
         }
         #endregion
- 
 
-        void GoHome_Enter(object sender, AgentEventArgs<Agent> e)
+
+        void WalkingTo_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            e.Agent.Say("Walkin' Home");
-            e.Agent.ChangeLocation(LocationType.HomeSweetHome);
+            e.Agent.Say(string.Format("Walkin' to {0}", e.Agent.TargetLocation));
+            e.Agent.ChangeLocation(e.Agent.TargetLocation);
 
         }
 
         public override void Execute(Agent agent)
         {
-            var homePosition = agent.LocationManager.Locations[LocationType.HomeSweetHome].position;
+            var target = agent.LocationManager.Locations[agent.TargetLocation].position;
+            
+            target.y = 0;
 
-            if (Vector3.Distance(homePosition, agent.transform.position) <= 1.0f)
+            if (Vector3.Distance(target, agent.transform.position) <= 3.0f)
             {
-                //We are arrived!!!
-                agent.ChangeState<T>(SleepTillRested<T>.Instance);
-
+                agent.StateMachine.RevertToPreviousState();
             }
 
         }

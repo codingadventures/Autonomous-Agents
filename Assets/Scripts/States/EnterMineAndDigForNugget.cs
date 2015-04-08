@@ -6,12 +6,15 @@ namespace Assets.Scripts.States
     /// <summary>
     /// Enter mine and Dig for Nugget
     /// </summary>
-    public sealed class EnterMineAndDigForNugget<T> : State  where T : Miner
+    public sealed class EnterMineAndDigForNugget<T> : State where T : Miner
     {
         private EnterMineAndDigForNugget()
-        { 
+        {
             Exit += EnterMineAndDigForNugget_Exit;
+            Enter += EnterMineAndDigForNugget_Enter;
         }
+
+
 
 
         #region [ Singleton Implementation ]
@@ -35,16 +38,24 @@ namespace Assets.Scripts.States
         }
         #endregion
 
-        
+
+        void EnterMineAndDigForNugget_Enter(object sender, AgentEventArgs<Agent> e)
+        {
+            e.Agent.TargetLocation = LocationType.Goldmine;
+
+            if (e.Agent.Location != LocationType.Goldmine)
+                e.Agent.ChangeState<T>(WalkingTo<T>.Instance);
+        }
 
         void EnterMineAndDigForNugget_Exit(object sender, AgentEventArgs<Agent> e)
         {
-            e.Agent.Say("Ah'm leavin' the gold mine with mah pockets full o' sweet gold");
+            if (e.Agent.Location == LocationType.Goldmine)
+                e.Agent.Say("Ah'm leavin' the gold mine with mah pockets full o' sweet gold");
         }
 
         public override void Execute(Agent agent)
         {
-            var miner = (T) agent;
+            var miner = (T)agent;
             miner.AddGoldToInventory(1);
 
             miner.IncreaseFatigue();

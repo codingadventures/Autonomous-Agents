@@ -1,9 +1,8 @@
-﻿using System;
-
+﻿
 namespace Assets.Scripts.States
 {
     using Agents;
-    using Random = Random;
+    using System;
 
     public class DoHousework<T> : State where T : Elsa
     {

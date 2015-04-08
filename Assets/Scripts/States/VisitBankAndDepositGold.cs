@@ -5,14 +5,16 @@ namespace Assets.Scripts.States
     using Scripts;
     using Agents;
 
-    public sealed class VisitBankAndDepositGold<T> : State   where T : Miner
+    public sealed class VisitBankAndDepositGold<T> : State where T : Miner
     {
 
         private VisitBankAndDepositGold()
-        { 
+        {
             Exit += VisitBankAndDepositGold_Exit;
-
+            Enter += VisitBankAndDepositGold_Enter;
         }
+
+
 
         #region [ Singleton Implementation ]
         public static VisitBankAndDepositGold<T> Instance { get { return Nested.instance; } }
@@ -35,18 +37,26 @@ namespace Assets.Scripts.States
         }
         #endregion
 
-       
+
+        private void VisitBankAndDepositGold_Enter(object sender, AgentEventArgs<Agent> e)
+        {
+            e.Agent.TargetLocation = LocationType.Bank;
+
+            if (e.Agent.Location != LocationType.Bank)
+                e.Agent.ChangeState<T>(WalkingTo<T>.Instance);
+        }
 
         void VisitBankAndDepositGold_Exit(object sender, AgentEventArgs<Agent> e)
         {
-            e.Agent.Say("Leavin' the Bank");
+            if (e.Agent.Location == LocationType.Bank)
+                e.Agent.Say("Leavin' the Bank");
         }
 
         #region implemented abstract members of State
 
         public override void Execute(Agent agent)
         {
-            var miner = (T) agent;
+            var miner = (T)agent;
             miner.DepositMoney(miner.GoldCarried);
 
             agent.Say("Depositing gold. Total savings now: " + miner.MoneyInBank);

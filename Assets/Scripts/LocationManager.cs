@@ -15,7 +15,7 @@ namespace Assets.Scripts
         {
             var saloon = GameObject.FindGameObjectWithTag("Saloon");
             if (saloon == null) throw new NullReferenceException("Saloon game object is not available!");
-
+            
             Locations.Add(LocationType.Saloon, saloon.transform);
 
             var home = GameObject.FindGameObjectWithTag("Home");

@@ -1,4 +1,6 @@
 
+using System.Collections;
+
 namespace Assets.Scripts.States
 {
     using Agents;
@@ -10,7 +12,7 @@ namespace Assets.Scripts.States
         private SleepTillRested()
         {
             Enter += SleepTilRested_Enter;
-           
+
         }
 
 
@@ -37,22 +39,36 @@ namespace Assets.Scripts.States
         }
         #endregion
 
-      
-
-        void SleepTilRested_Enter(object sender, AgentEventArgs<Agent> e)
+        static IEnumerator SendMessage(Agent agent)
         {
+            yield return new WaitForSeconds(2.0f);
+
             try
             {
-                Messenger.Broadcast(MessageType.HiHoneyImHome.ToString(), 
-                    new MessageEventArgs<Agent>(e.Agent, 
+                Messenger.Broadcast(MessageType.HiHoneyImHome.ToString(),
+                    new MessageEventArgs<Agent>(agent,
                         new Telegram { MessageType = MessageType.HiHoneyImHome }));
-
+                
             }
             catch (Messenger.BroadcastException be)
             {
                 Debug.LogException(be);
 
             }
+        }
+
+        void SleepTilRested_Enter(object sender, AgentEventArgs<Agent> e)
+        {
+            e.Agent.TargetLocation = LocationType.HomeSweetHome;
+
+            if (e.Agent.Location != LocationType.HomeSweetHome)
+            {
+                e.Agent.ChangeState<T>(WalkingTo<T>.Instance);
+                return;
+            }
+            e.Agent.Say("Hi honey, I'm home!");
+
+            StaticCoroutine.DoCoroutine(SendMessage(e.Agent));
         }
 
         public override void Execute(Agent agent)

@@ -1,5 +1,6 @@
-﻿ 
+﻿
 
+using System.Collections;
 using System.Linq;
 
 namespace Assets.Scripts.Agents
@@ -26,7 +27,7 @@ namespace Assets.Scripts.Agents
         protected IEnumerable<Vector3> Path;
 
         protected PathFinder PathFinder;
-         
+
         protected int NodeIndex;
         #endregion
 
@@ -37,6 +38,7 @@ namespace Assets.Scripts.Agents
 
         public int Id { get; set; }
         public LocationType Location { get; protected set; }
+        public LocationType TargetLocation { get; set; }
         #endregion
 
         #region [ Public Methods ]
@@ -52,13 +54,13 @@ namespace Assets.Scripts.Agents
             Location = locationType;
             var destination = LocationManager.Locations[Location];
             Path = PathFinder.CalculatePath(transform.position, destination.position);
-            NodeIndex = Path.Count();
+            NodeIndex = Path.Count() - 1;
         }
 
         public void Say(string vocalMessage)
         {
-            var formattedMessage = string.Format("{0} Message {1}", ToString() , vocalMessage);
-            
+            var formattedMessage = string.Format("{0} Message {1}", ToString(), vocalMessage);
+
             if (Debug.isDebugBuild)
                 Debug.Log(formattedMessage);
 
@@ -76,6 +78,17 @@ namespace Assets.Scripts.Agents
         }
 
         public abstract override string ToString();
+
+        protected IEnumerator PerformUpdate()
+        {
+            while (true)
+            {
+                StateMachine.Update();
+
+                yield return new WaitForSeconds(UpdateStep);
+            }
+        }
+
         #endregion
 
         #region [ Unity Monobehavior Events ]
@@ -84,6 +97,7 @@ namespace Assets.Scripts.Agents
         {
             PathFinder = FindObjectOfType<PathFinder>();
             LocationManager = FindObjectOfType<LocationManager>();
+            Path = Enumerable.Empty<Vector3>();
         }
 
         #endregion

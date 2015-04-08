@@ -68,15 +68,7 @@ namespace Assets.Scripts.Agents
         }
 
 
-        IEnumerator PerformUpdate()
-        {
-            while (true)
-            {
-                StateMachine.Update();
-
-                yield return new WaitForSeconds(UpdateStep);
-            }
-        }
+        
 
         #endregion 
     }
