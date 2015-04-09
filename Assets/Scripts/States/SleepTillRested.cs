@@ -74,7 +74,7 @@ namespace Assets.Scripts.States
         public override void Execute(Agent agent)
         {
             var miner = (T)agent;
-            if (!miner.IsTired())
+            if (miner.IsRested())
             {
                 agent.Say("All mah fatigue has drained away. Time to find more gold!");
 

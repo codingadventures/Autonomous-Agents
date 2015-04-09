@@ -60,17 +60,26 @@ namespace Assets.Scripts.States
 
             miner.IncreaseFatigue();
 
+            miner.IncreaseThirst();
+
             miner.Say("Pickin' up a nugget");
 
             if (miner.IsPocketFull())
             {
                 miner.ChangeState<T>(VisitBankAndDepositGold<T>.Instance);
+                return;
             }
 
             if (miner.IsThirsty())
             {
                 miner.ChangeState<T>(QuenchThirst<T>.Instance);
+                return;
             }
+
+            if (!miner.IsTired()) return;
+
+            miner.ChangeState<T>(SleepTillRested<T>.Instance);
+            
         }
     }
 }

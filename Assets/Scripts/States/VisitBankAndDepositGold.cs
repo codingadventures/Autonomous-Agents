@@ -61,7 +61,7 @@ namespace Assets.Scripts.States
 
             agent.Say("Depositing gold. Total savings now: " + miner.MoneyInBank);
 
-            if (miner.IsRich())
+            if (miner.IsRich() || miner.IsTired())
             {
                 agent.Say("WooHoo! Rich enough for now. Back home to mah li'lle lady");
                 agent.ChangeState<T>(SleepTillRested<T>.Instance);
