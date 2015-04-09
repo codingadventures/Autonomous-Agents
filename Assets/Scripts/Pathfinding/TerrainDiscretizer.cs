@@ -9,13 +9,15 @@ namespace Assets.Scripts.Pathfinding
         public float Sample;
         // Use this for initialization
         public bool DrawGrid;
+        
+        public float HeightCost;
 
         private Terrain _terrain;
         void Awake()
         {
             _terrain = GetComponent<Terrain>();
 
-            Grid = new Grid(_terrain, Sample);
+            Grid = new Grid(_terrain, Sample, HeightCost);
         }
 
         // Update is called once per frame
@@ -32,10 +34,10 @@ namespace Assets.Scripts.Pathfinding
 
             foreach (var node in Grid.InternalGrid)
             {
-                if (node.IsWalkable)
-                    Gizmos.color = Color.Lerp(Color.green, Color.red, 1 - node.Cost);
-                else
-                    Gizmos.color = Color.red;
+                Gizmos.color = 
+                    node.IsWalkable 
+                    ? Color.Lerp(Color.green, Color.red, node.Cost / (10 * 2.5f)) 
+                    : Color.red;
 
 
                 Gizmos.DrawSphere(node.Position, 0.2f);

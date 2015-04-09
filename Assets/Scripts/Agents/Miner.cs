@@ -184,14 +184,13 @@ namespace Assets.Scripts.Agents
             if (Path.Count() <= nodeIndex) return false;
 
             var point = Path.ElementAt(nodeIndex);
-
-            var yAdjustedPoint = new Vector3(point.x, point.y + transform.position.y, point.z);
-
+             
             //this is for dynamic waypoint, each unit creep have it's own offset pos
             //point+=dynamicOffset;
             // point += pathDynamicOffset;//+flightHeightOffset;
+            var adjustedPoint = point + Vector3.up*0.5f;
 
-            float dist = Vector3.Distance(yAdjustedPoint, transform.position);
+            float dist = Vector3.Distance(adjustedPoint, transform.position);
 
             //if the unit have reached the point specified
             //~ if(dist<0.15f) return true;
@@ -205,10 +204,9 @@ namespace Assets.Scripts.Agents
             //}
 
             //move, with speed take distance into accrount so the unit wont over shoot
-            Vector3 dir = (yAdjustedPoint - transform.position).normalized;
+            Vector3 dir = (adjustedPoint - transform.position).normalized;
             transform.Translate(dir * Mathf.Min(dist, MoveSpeed * Time.fixedDeltaTime), Space.World);
-
-            //distFromDestination -= (MoveSpeed * Time.fixedDeltaTime);
+             //distFromDestination -= (MoveSpeed * Time.fixedDeltaTime);
 
             return false;
         }

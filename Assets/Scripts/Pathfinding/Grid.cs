@@ -13,6 +13,7 @@
         public int SampledHeight { get; private set; }
 
         private readonly float _sample;
+        private readonly float _heightCost;
         private readonly Terrain _terrain;
         private readonly List<Location> _directions = new List<Location>
         {
@@ -27,7 +28,7 @@
 
         };
 
-        public Grid(Terrain terrain, float sample)
+        public Grid(Terrain terrain, float sample, float heightCost)
         {
             _terrain = terrain;
 
@@ -38,6 +39,7 @@
             SampledWidth = (int)Mathf.Ceil(width / sample);
             SampledHeight = (int)Mathf.Ceil(height / sample);
             _sample = sample;
+            _heightCost = heightCost;
             InternalGrid = new Node[SampledWidth, SampledHeight];
 
             //Build the Grid [width,height] --> O(n^2)
@@ -64,7 +66,7 @@
 
                     RaycastHit hit;
                     var intersect = Physics.Raycast(pos + new Vector3(0, 10, 0), Vector3.down, out hit, Mathf.Infinity, ~mask);
-                    var cost = intersect ? int.MaxValue : 1;
+                    var cost = intersect ? int.MaxValue : 1 + 1 * terrainheight * _heightCost;
                     var node = new Node(cost, new Location(i, j), pos, isWalkable: !intersect);
                     InternalGrid[i, j] = node;
                 }
@@ -221,12 +223,13 @@
         /// <param name="a">The a.</param>
         /// <param name="b">The goal a.</param>
         /// <returns></returns>
-        float Heuristic(Node a, Node b)
+        static float Heuristic(Node a, Node b)
         {
             var dx = Mathf.Abs(a.Position.x - b.Position.x);
             var dz = Mathf.Abs(a.Position.z - b.Position.z);
+            var dy = Mathf.Abs(a.Position.y - b.Position.y);
 
-            return 1.0f * (dx + dz);
+            return 1.0f * (dx + dy + dz);
         }
 
         public bool IsPositionWalkable(Vector3 position)
