@@ -1,6 +1,7 @@
 
 using System;
 using System.Linq;
+using Assets.Scripts.Sensing;
 
 namespace Assets.Scripts.Agents
 {
@@ -80,13 +81,18 @@ namespace Assets.Scripts.Agents
 
         public override string ToString()
         {
-            var message = string.Format("[<color=red>Miner Bob - Id: {0}", Id);
+            var message = string.Format("<color=red>[Miner Bob - Id: {0}", Id);
 
             if (Verbosity == Verbosity.Verbose)
                 message += String.Format("GoldCarried={0}, MoneyInBank={1}, Thirst={2}, Fatigue={3}, LocationType={4}]" + Environment.NewLine, GoldCarried, MoneyInBank, Thirst, Fatigue, Location);
 
-            message += "</color>";
+            message += "]</color>";
             return message;
+        }
+
+        public override void HandleSense(Sense sense)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

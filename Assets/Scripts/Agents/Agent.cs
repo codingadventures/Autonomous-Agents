@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Linq;
+using Assets.Scripts.Sensing;
 
 namespace Assets.Scripts.Agents
 {
@@ -11,7 +12,7 @@ namespace Assets.Scripts.Agents
     using System.Collections.Generic;
     using Pathfinding;
 
-    public abstract class Agent : MonoBehaviour
+    public abstract class Agent : MonoBehaviour, ISense
     {
         #region [ Public Field - Used By Unity Interface ]
         public float UpdateStep;
@@ -67,6 +68,12 @@ namespace Assets.Scripts.Agents
         }
         #endregion
 
+
+        #region [ Abstract ]
+        public abstract override string ToString();
+        public abstract void HandleSense(Sense sense);
+
+        #endregion
         #region [ Protected Methods ]
         protected void OnMessage(MessageEventArgs<Agent> aea)
         {
@@ -77,7 +84,7 @@ namespace Assets.Scripts.Agents
             }
         }
 
-        public abstract override string ToString();
+    
 
         protected IEnumerator PerformUpdate()
         {

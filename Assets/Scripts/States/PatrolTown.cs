@@ -1,22 +1,19 @@
-﻿
+﻿using System;
+using Assets.Scripts.Agents;
+
 namespace Assets.Scripts.States
 {
-    using Agents;
-    using Scripts;
-    using UnityEngine;
-    public sealed class WalkingTo<T> : State where T : Agent
+    public class PatrolTown<T> : State where T : Sheriff
     {
+        #region [ Singleton Implementation ]
+        public static PatrolTown<T> Instance { get { return Nested.instance; } }
 
-        private WalkingTo()
+        private PatrolTown()
         {
-            Enter += WalkingTo_Enter;
+            Enter += PatrolTown_Enter;
         }
 
 
-
-        #region [ Singleton Implementation ]
-
-        public static WalkingTo<T> Instance { get { return Nested.instance; } }
 
         /// This is a fully lazy initialization implementation
         /// Instantiation is triggered by the first reference to the static member of the nested class, 
@@ -32,30 +29,25 @@ namespace Assets.Scripts.States
             {
             }
 
-            internal static readonly WalkingTo<T> instance = new WalkingTo<T>();
+            internal static readonly PatrolTown<T> instance = new PatrolTown<T>();
         }
         #endregion
-
-
-        void WalkingTo_Enter(object sender, AgentEventArgs<Agent> e)
+      
+        private void PatrolTown_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            e.Agent.Say(string.Format("Walkin' to {0}", e.Agent.TargetLocation));
-            e.Agent.ChangeLocation(e.Agent.TargetLocation);
+            var values = Enum.GetValues(typeof(LocationType));
+            var random = new Random();
+            var randomLocation = (LocationType)values.GetValue(random.Next(values.Length));
 
+            e.Agent.TargetLocation = randomLocation;
+
+            if (e.Agent.Location != randomLocation)
+                e.Agent.ChangeState<T>(WalkingTo<T>.Instance);
         }
-
         public override void Execute(Agent agent)
         {
-            var target = agent.LocationManager.Locations[agent.TargetLocation].position;
-            
-            target.y = 0;
-
-            if (Vector3.Distance(target, agent.transform.position) <= 3.0f)
-            {
-                agent.StateMachine.RevertToPreviousState();
-            }
+           agent.Say("Patroling my loved town!");
 
         }
     }
 }
-

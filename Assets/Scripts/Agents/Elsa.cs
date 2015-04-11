@@ -1,5 +1,6 @@
 ﻿using System;
 using Assets.Scripts.Message;
+using Assets.Scripts.Sensing;
 
 namespace Assets.Scripts.Agents
 {
@@ -36,14 +37,20 @@ namespace Assets.Scripts.Agents
         #region [ Overrides ]
         public override string ToString()
         {
-            var message = string.Format("[<color=green>Wife Elsa - Id: {0}", Id);
+            var message = string.Format("<color=green>[Wife Elsa - Id: {0}", Id);
 
             if (Verbosity == Verbosity.Verbose)
                 message += string.Format("Cooking={0}, LocationType={1}]" + Environment.NewLine, Cooking, Location);
 
-            message += "</color>";
+            message += "]</color>";
             return message;
         }
+
+        public override void HandleSense(Sense sense)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
 
