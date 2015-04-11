@@ -58,7 +58,7 @@
                 {
                     var x = _sample * 0.5f * (2 * i + 1); //I calculate the center of each grid i * sample + sample / 2
                     var z = _sample * 0.5f * (2 * j + 1);
-
+                    float attenuation = 0;
                     var pos = new Vector3(x, 0, z) + _worldPosition;
 
                     var terrainheight = _terrain.SampleHeight(pos);
@@ -66,8 +66,16 @@
 
                     RaycastHit hit;
                     var intersect = Physics.Raycast(pos + new Vector3(0, 10, 0), Vector3.down, out hit, Mathf.Infinity, ~mask);
+                    if (intersect)
+                    {
+                        var colliderSize = hit.collider.bounds.size;
+                        var colliderHeight = colliderSize.y;
+                        attenuation = colliderHeight;
+                    }
+
                     var cost = intersect ? int.MaxValue : 1 + 1 * terrainheight * _heightCost;
-                    var node = new Node(cost, new Location(i, j), pos, isWalkable: !intersect);
+                    attenuation = 0.1f * (terrainheight + attenuation);
+                    var node = new Node(cost, attenuation, new Location(i, j), pos, isWalkable: !intersect);
                     InternalGrid[i, j] = node;
                 }
             }
@@ -197,6 +205,61 @@
             return path;
         }
 
+
+        public List<Node> AStarSensing(Vector3 start, Vector3 end)
+        {
+            var frontier = new IntervalHeap<Node>(new NodeAttenuationComparer());
+            var cameFrom = new Dictionary<string, Node>();
+
+            var startNode = FindNode(start);
+            var endNode = FindNode(end);
+
+            frontier.Add(startNode);
+            cameFrom.Add(startNode.ToString(), null);
+
+            while (frontier.Any())
+            {
+                var currentNode = frontier.FindMin();
+                frontier.DeleteMin();
+
+                if (currentNode == endNode)
+                    break;
+
+                foreach (var neighbor in currentNode.Neighboors)
+                {
+                    var neighborName = neighbor.ToString();
+
+                    if (cameFrom.ContainsKey(neighborName))
+                        continue;
+
+                    var newCost = neighbor.Attenuation + Heuristic(endNode, neighbor);
+
+                    neighbor.Cost = newCost;
+
+                    frontier.Add(neighbor);
+                    cameFrom.Add(neighborName, currentNode);
+                }
+            }
+
+            var current = endNode;
+
+            var path = new List<Node> { current };
+
+            if (!cameFrom.ContainsKey(endNode.ToString())) return path; 
+
+           
+            while (current != startNode)
+            {
+                if (!cameFrom.ContainsKey(current.ToString())) continue;
+
+                current = cameFrom[current.ToString()];
+                path.Add(current);
+            }
+
+            return path;
+        }
+
+
         public Node FindNode(Vector3 positionVector3)
         {
             var i = Mathf.RoundToInt(positionVector3.x / _sample);
@@ -218,10 +281,10 @@
 
 
         /// <summary>
-        /// Heuristics on the specified a based on the Manhattan distance
+        /// Heuristics on the specified Node based on the Manhattan distance
         /// </summary>
-        /// <param name="a">The a.</param>
-        /// <param name="b">The goal a.</param>
+        /// <param name="a">The Node a.</param>
+        /// <param name="b">The goal Node b.</param>
         /// <returns></returns>
         static float Heuristic(Node a, Node b)
         {

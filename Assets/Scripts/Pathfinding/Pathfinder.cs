@@ -1,4 +1,4 @@
-﻿ namespace Assets.Scripts.Pathfinding
+﻿namespace Assets.Scripts.Pathfinding
 {
     using UnityEngine;
     using System.Collections.Generic;
@@ -10,7 +10,7 @@
     {
         AStar,
         BreadthFirstSearch,
-        Both
+        SensePropagation
     }
 
     public class PathFinder : MonoBehaviour
@@ -19,7 +19,7 @@
         private List<Node> _nodeGraph;
         private TerrainDiscretizer _terrainDiscretizer;
         public SearchType SearchType;
-
+        public float MaxAttenuation;
         // Use this for initialization
         void Start()
         {
@@ -48,24 +48,24 @@
             }
         }
 
-        public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end  )
+        public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end)
         {
             switch (SearchType)
             {
                 case SearchType.AStar:
                     _nodeGraph = _terrainDiscretizer.Grid.AStarSearch(start, end);
-
                     break;
                 case SearchType.BreadthFirstSearch:
                     _nodeGraph = _terrainDiscretizer.Grid.BreadthFirstSearch(start, end);
-
                     break;
-
+                case SearchType.SensePropagation:
+                    _nodeGraph =  _terrainDiscretizer.Grid.AStarSensing(start, end);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
 
-            return _nodeGraph.Select(node => node.Position) ;
+            return _nodeGraph.Select(node => node.Position);
 
 
         }

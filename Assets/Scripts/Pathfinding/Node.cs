@@ -11,19 +11,22 @@ namespace Assets.Scripts.Pathfinding
 
         public float Cost { get; set; }
 
+        public float Attenuation { get; set; }
+
         public Vector3 Position { get; private set; }
 
         public List<Node> Neighboors { get; private set; }
 
         public readonly bool IsWalkable; //{ get; private set; }
 
-        public Node(float cost, Location gridPosition, Vector3 position, bool isWalkable)
+        public Node(float cost, float attenuation, Location gridPosition, Vector3 position, bool isWalkable)
         {
             _gridPosition = gridPosition;
             Cost = cost;
             Position = position;
             Neighboors = new List<Node>(4);
             IsWalkable = isWalkable;
+            Attenuation = attenuation;
         }
 
 
@@ -35,6 +38,18 @@ namespace Assets.Scripts.Pathfinding
 
 
     }
+
+    internal class NodeAttenuationComparer : IComparer<Node>
+    {
+        public int Compare(Node x, Node y)
+        {
+            if (x.Attenuation > y.Attenuation) return 1;
+            if (x.Attenuation < y.Attenuation) return -1;
+
+            return 0;
+        }
+    }
+
 
     internal class NodeComparer : IComparer<Node>
     {
