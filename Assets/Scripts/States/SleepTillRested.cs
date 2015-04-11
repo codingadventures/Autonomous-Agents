@@ -12,7 +12,6 @@ namespace Assets.Scripts.States
         private SleepTillRested()
         {
             Enter += SleepTilRested_Enter;
-
         }
 
 

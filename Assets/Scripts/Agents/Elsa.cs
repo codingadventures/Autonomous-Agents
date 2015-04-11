@@ -1,12 +1,12 @@
-﻿using System;
-using Assets.Scripts.Message;
-using Assets.Scripts.Sensing;
+﻿
 
 namespace Assets.Scripts.Agents
 {
     using States;
     using UnityEngine;
-    using System.Collections;
+    using System;
+    using Message;
+    using Sensing;
 
     public class Elsa : Agent
     { 
@@ -59,7 +59,7 @@ namespace Assets.Scripts.Agents
 
         void Awake()
         {
-            Id = Random.Range(0, 100);
+            Id = UnityEngine.Random.Range(0, 100);
             StateMachine = new StateMachine(this) {GlobalState = WifeGlobalState<Elsa>.Instance};
             Messenger.AddListener<MessageEventArgs<Agent>>(MessageType.HiHoneyImHome.ToString(), OnMessage);
 

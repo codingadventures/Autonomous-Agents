@@ -100,6 +100,10 @@ namespace Assets.Scripts.Agents
 
         #region [ Unity Monobehavior Events ]
 
+        protected virtual void Awake()
+        {
+            Id = UnityEngine.Random.Range(0, 100);
+        }
         protected virtual void Start()
         {
             PathFinder = FindObjectOfType<PathFinder>();

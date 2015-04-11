@@ -33,6 +33,11 @@ namespace Assets.Scripts
             if (bank == null) throw new NullReferenceException("Bank game object is not available!");
 
             Locations.Add(LocationType.Bank, bank.transform);
+
+            var escapePoint = GameObject.FindGameObjectWithTag("EscapePoint");
+            if (escapePoint == null) throw new NullReferenceException("EscapePoint game object is not available!");
+
+            Locations.Add(LocationType.EscapePoint, escapePoint.transform);
         }
       
     }

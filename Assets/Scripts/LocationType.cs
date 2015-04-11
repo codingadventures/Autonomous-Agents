@@ -5,7 +5,8 @@ namespace Assets.Scripts
         Bank,
         HomeSweetHome,
         Goldmine,
-        Saloon
+        Saloon,
+        EscapePoint
 
     }
 }

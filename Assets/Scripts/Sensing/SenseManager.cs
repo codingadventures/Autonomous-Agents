@@ -11,7 +11,7 @@ namespace Assets.Scripts.Sensing
     {
         public float SenseDistance;
         private readonly List<Agent> _agents = new List<Agent>();
-        private Pathfinding.PathFinder _pathFinder;
+        private PathFinder _pathFinder;
         private List<List<Vector3>> _nodeGraph;
 
         // Use this for initialization

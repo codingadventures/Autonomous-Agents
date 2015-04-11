@@ -1,13 +1,14 @@
 
-using System;
-using System.Linq;
-using Assets.Scripts.Sensing;
 
 namespace Assets.Scripts.Agents
 {
     using States;
     using UnityEngine;
     using Message;
+
+    using System;
+    using System.Linq;
+    using Sensing;
 
     public class Miner : Agent
     {
@@ -47,9 +48,8 @@ namespace Assets.Scripts.Agents
 
 
 
-        void Awake()
+        protected override void Awake()
         {
-            Id = Random.Range(0, 100);
             StateMachine = new StateMachine(this) { GlobalState = MinerGlobalState<Miner>.Instance };
             Messenger.AddListener<MessageEventArgs<Agent>>(MessageType.StewsReady.ToString(), OnMessage);
         }
