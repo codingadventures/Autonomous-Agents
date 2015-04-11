@@ -10,16 +10,19 @@ namespace Assets.Scripts.Sensing
     public class SenseManager : MonoBehaviour
     {
         public float SenseDistance;
+        public PathFinder PathFinder;
+
+        public float MaxAttenuation;
+
         private readonly List<Agent> _agents = new List<Agent>();
-        private PathFinder _pathFinder;
-        private List<List<Vector3>> _nodeGraph;
+        private List<Node> _nodeGraph;
 
         // Use this for initialization
         void Start()
         {
-            _nodeGraph = new List<List<Vector3>>();
+            _nodeGraph = new List<Node>();
             _agents.AddRange(FindObjectsOfType<Agent>());
-            _pathFinder = GetComponent<PathFinder>();
+            PathFinder = GetComponent<PathFinder>();
             StartCoroutine(PerformUpdate());
         }
 
@@ -34,27 +37,35 @@ namespace Assets.Scripts.Sensing
                     {
                         if (i == j) continue;
 
-                        if (Vector3.Distance(_agents[i].transform.position, _agents[j].transform.position) <= SenseDistance)
-                        {
-                            //See if the sense propagation would work
-                            _nodeGraph.Add(_pathFinder.CalculatePath(_agents[i].transform.position, _agents[j].transform.position).ToList());
-                        }
+                        if (Vector3.Distance(_agents[i].transform.position, _agents[j].transform.position) > SenseDistance) continue;
+
+
+                        var sense = new Sight { AgentSensed = _agents[j] };
+
+                        _nodeGraph = sense.PropagateSense(PathFinder, _agents[i].transform.position, _agents[j].transform.position);
+
+                        var attenuation = _nodeGraph.AsEnumerable().Sum(node => node.Attenuation);
+
+                        if (attenuation > MaxAttenuation) continue;
+
+                        _agents[i].HandleSense(sense);
+
                     }
                 }
 
-                yield return new WaitForSeconds(1.0f);
+                yield return new WaitForSeconds(.5f);
 
             }
-        } 
+        }
 
         public void OnDrawGizmos()
         {
             if (_nodeGraph == null) return;
 
-            foreach (var node in _nodeGraph.SelectMany(nodes => nodes))
+            foreach (var node in _nodeGraph )
             {
                 Gizmos.color = Color.cyan;
-                Gizmos.DrawSphere(node, .15f);
+                Gizmos.DrawSphere(node.Position, .15f);
             }
         }
     }

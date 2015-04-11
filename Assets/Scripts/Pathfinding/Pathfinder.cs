@@ -20,6 +20,7 @@
         private TerrainDiscretizer _terrainDiscretizer;
         public SearchType SearchType;
         public float MaxAttenuation;
+        public bool DrawOnGizmo;
         // Use this for initialization
         void Start()
         {
@@ -31,23 +32,23 @@
 
         public void OnDrawGizmos()
         {
+            if (!DrawOnGizmo) return;
+
             if (_nodeGraph == null) return;
+
 
             foreach (var node in _nodeGraph)
             {
-                if (!node.IsWalkable)
-                {
-                    Gizmos.color = Color.cyan;
-                    Gizmos.DrawSphere(node.Position, _terrainDiscretizer.Sample * .15f);
-                }
-                else
-                {
-                    Gizmos.color = Color.yellow;
-                    Gizmos.DrawSphere(node.Position, _terrainDiscretizer.Sample * .15f);
-                }
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawSphere(node.Position, _terrainDiscretizer.Sample * .15f);
             }
         }
 
+        public List<Node> CalculateSensingPath(Vector3 start, Vector3 end)
+        {
+            _nodeGraph = _terrainDiscretizer.Grid.AStarSensing(start, end);
+            return _nodeGraph;
+        }
         public IEnumerable<Vector3> CalculatePath(Vector3 start, Vector3 end)
         {
             switch (SearchType)
@@ -59,7 +60,7 @@
                     _nodeGraph = _terrainDiscretizer.Grid.BreadthFirstSearch(start, end);
                     break;
                 case SearchType.SensePropagation:
-                    _nodeGraph =  _terrainDiscretizer.Grid.AStarSensing(start, end);
+                    _nodeGraph = _terrainDiscretizer.Grid.AStarSensing(start, end);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

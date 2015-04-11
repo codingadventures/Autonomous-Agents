@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Assets.Scripts.Agents;
+using Assets.Scripts.Message;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -41,10 +42,7 @@ namespace Assets.Scripts.States
         private void ChaseBandits_Enter(object sender, AgentEventArgs<Agent> e)
         {
             e.Agent.Say("I found you!!!! Now you go to Jail!");
-            e.Agent.TargetLocation = LocationType.EscapePoint;
 
-            if (e.Agent.Location != LocationType.EscapePoint)
-                e.Agent.ChangeState<T>(WalkingTo<T>.Instance);
         }
         #region implemented abstract members of State
 
@@ -61,10 +59,19 @@ namespace Assets.Scripts.States
             if (Vector3.Distance(position, agent.transform.position) <= 3.0f)
             {
                 agent.Say("Got you!");
-                agent.StateMachine.RevertToPreviousState();
+                Messenger.Broadcast(MessageType.BanditsFollowMe.ToString(),
+                   new MessageEventArgs<Agent>(agent,
+                       new Telegram { MessageType = MessageType.BanditsFollowMe }));
+                agent.StateMachine.ChangeState(PunishBandits<Sheriff>.Instance);
+               
             }
-
-            agent.Say("Bandits come here!!!! Bang Bang!!");
+            else
+            {
+                agent.Say("Bandits come here!!!! Bang Bang!!");
+                target.MoveSpeed--;
+                target.Say("Ouch Ouch!");
+                agent.ChangeLocation(target.transform.position);
+            }
         }
 
         #endregion

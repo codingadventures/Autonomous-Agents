@@ -5,7 +5,8 @@ namespace Assets.Scripts.Message
     public enum MessageType
     {
         HiHoneyImHome,
-        StewsReady
+        StewsReady,
+        BanditsFollowMe
     }
 
     public struct Telegram 

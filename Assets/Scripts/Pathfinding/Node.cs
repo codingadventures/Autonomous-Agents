@@ -43,10 +43,7 @@ namespace Assets.Scripts.Pathfinding
     {
         public int Compare(Node x, Node y)
         {
-            if (x.Attenuation > y.Attenuation) return 1;
-            if (x.Attenuation < y.Attenuation) return -1;
-
-            return 0;
+            return 0; // all the node are the same
         }
     }
 

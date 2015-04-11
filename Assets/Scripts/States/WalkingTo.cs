@@ -48,7 +48,7 @@ namespace Assets.Scripts.States
         {
             var target = agent.LocationManager.Locations[agent.TargetLocation].position;
             
-            target.y = 0;
+            //target.y = 0;
 
             if (Vector3.Distance(target, agent.transform.position) <= 3.0f)
             {

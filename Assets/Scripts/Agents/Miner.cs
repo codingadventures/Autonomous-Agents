@@ -64,14 +64,6 @@ namespace Assets.Scripts.Agents
             StartCoroutine(PerformUpdate());
         }
 
-        void FixedUpdate()
-        {
-
-            if (!MoveToPoint(NodeIndex))
-                return;
-
-            NodeIndex -= 1;
-        }
 
 
 
@@ -92,7 +84,8 @@ namespace Assets.Scripts.Agents
 
         public override void HandleSense(Sense sense)
         {
-            throw new NotImplementedException();
+            if (sense.AgentSensed.GetType() == typeof(Sheriff))
+                Say(string.Format("Hello Sheriff:{0}! ", sense.AgentSensed.Id));
         }
 
         #endregion
@@ -181,41 +174,7 @@ namespace Assets.Scripts.Agents
             }
         }
 
-        private bool MoveToPoint(int nodeIndex)
-        {
-            if (nodeIndex < 0) return false;
 
-            if (!Path.Any()) return false;
-
-            if (Path.Count() <= nodeIndex) return false;
-
-            var point = Path.ElementAt(nodeIndex);
-             
-            //this is for dynamic waypoint, each unit creep have it's own offset pos
-            //point+=dynamicOffset;
-            // point += pathDynamicOffset;//+flightHeightOffset;
-            var adjustedPoint = point + Vector3.up*0.5f;
-
-            float dist = Vector3.Distance(adjustedPoint, transform.position);
-
-            //if the unit have reached the point specified
-            //~ if(dist<0.15f) return true;
-            if (dist < 0.005f) return true;
-
-            //rotate towards destination
-            //if (moveSpeed > 0)
-            //{
-            //    Quaternion wantedRot = Quaternion.LookRotation(point - transform.position);
-            //    //thisT.rotation = Quaternion.Slerp(thisT.rotation, wantedRot, rotateSpd * Time.deltaTime);
-            //}
-
-            //move, with speed take distance into accrount so the unit wont over shoot
-            Vector3 dir = (adjustedPoint - transform.position).normalized;
-            transform.Translate(dir * Mathf.Min(dist, MoveSpeed * Time.fixedDeltaTime), Space.World);
-             //distFromDestination -= (MoveSpeed * Time.fixedDeltaTime);
-
-            return false;
-        }
 
 
         #endregion

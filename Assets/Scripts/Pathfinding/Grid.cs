@@ -8,6 +8,8 @@
     public class Grid
     {
         public readonly Node[,] InternalGrid;
+        public Node[,] InternalGridWithUnwalkable { get; set; }
+
         private readonly Vector3 _worldPosition;
         public int SampledWidth { get; private set; }
         public int SampledHeight { get; private set; }
@@ -41,12 +43,63 @@
             _sample = sample;
             _heightCost = heightCost;
             InternalGrid = new Node[SampledWidth, SampledHeight];
-
+            InternalGridWithUnwalkable = new Node[SampledWidth, SampledHeight];
             //Build the Grid [width,height] --> O(n^2)
             InitGrid();
+            InitGridWithUnWalkable();
+
             //Initialize the edges/neighboots --> O(n^2) 
             InitEdges();
+            InitEdgesWithUnWalkable();
         }
+
+        private void InitGridWithUnWalkable()
+        {
+            LayerMask mask = 1 << 2; //it's ignore raycast
+
+            for (var i = 0; i < SampledWidth; i++)
+            {
+                for (var j = 0; j < SampledHeight; j++)
+                {
+                    var x = _sample * 0.5f * (2 * i + 1); //I calculate the center of each grid i * sample + sample / 2
+                    var z = _sample * 0.5f * (2 * j + 1);
+                    float attenuation = 0;
+                    var pos = new Vector3(x, 0, z) + _worldPosition;
+
+                    var terrainheight = _terrain.SampleHeight(pos);
+                    pos.y = terrainheight;
+
+                    RaycastHit hit;
+                    var intersect = Physics.Raycast(pos + new Vector3(0, 10, 0), Vector3.down, out hit, Mathf.Infinity, ~mask);
+                    if (intersect)
+                    {
+                        var colliderSize = hit.collider.bounds.size;
+                        var colliderHeight = colliderSize.y;
+                        attenuation = colliderHeight;
+                    }
+
+                    var cost = intersect ? int.MaxValue : 1;
+                    attenuation = (terrainheight + attenuation);
+                    var node = new Node(cost, attenuation, new Location(i, j), pos, isWalkable: !intersect);
+                    InternalGridWithUnwalkable[i, j] = node;
+                }
+            }
+        }
+
+        private void InitEdgesWithUnWalkable()
+        {
+            for (var i = 0; i < SampledWidth; i++)
+            {
+                for (var j = 0; j < SampledHeight; j++)
+                {
+                    var node = InternalGridWithUnwalkable[i, j];
+
+                    var neighboors = FindNeighboorsUnwalkable(i, j);
+                    node.Neighboors.AddRange(neighboors);
+                }
+            }
+        }
+
 
         private void InitGrid()
         {
@@ -113,6 +166,23 @@
             return neighboors;
         }
 
+        private IEnumerable<Node> FindNeighboorsUnwalkable(int i, int j)
+        {
+            var neighboors = new List<Node>(4);
+
+            foreach (var point in _directions)
+            {
+                if (0 > i + point.X || i + point.X >= SampledWidth || 0 > j + point.Y || j + point.Y >= SampledHeight)
+                    continue;
+
+                var neighNode = InternalGridWithUnwalkable[i + point.X, j + point.Y];
+
+                neighboors.Add(neighNode);
+            }
+
+            return neighboors;
+        }
+
         public List<Node> BreadthFirstSearch(Vector3 start, Vector3 end)
         {
             var frontier = new Queue<Node>();
@@ -163,7 +233,6 @@
 
             frontier.Add(startNode);
             cameFrom.Add(startNode.ToString(), null);
-            //costSoFar.Add(startNode.ToString(), 0);
 
             while (frontier.Any())
             {
@@ -208,11 +277,11 @@
 
         public List<Node> AStarSensing(Vector3 start, Vector3 end)
         {
-            var frontier = new IntervalHeap<Node>(new NodeAttenuationComparer());
+            var frontier = new IntervalHeap<Node>(new NodeComparer());
             var cameFrom = new Dictionary<string, Node>();
 
-            var startNode = FindNode(start);
-            var endNode = FindNode(end);
+            var startNode = FindNodeUnwalkable(start);
+            var endNode = FindNodeUnwalkable(end);
 
             frontier.Add(startNode);
             cameFrom.Add(startNode.ToString(), null);
@@ -232,7 +301,7 @@
                     if (cameFrom.ContainsKey(neighborName))
                         continue;
 
-                    var newCost = neighbor.Attenuation + Heuristic(endNode, neighbor);
+                    var newCost = Heuristic(endNode, neighbor);
 
                     neighbor.Cost = newCost;
 
@@ -245,9 +314,9 @@
 
             var path = new List<Node> { current };
 
-            if (!cameFrom.ContainsKey(endNode.ToString())) return path; 
+            if (!cameFrom.ContainsKey(endNode.ToString())) return path;
 
-           
+
             while (current != startNode)
             {
                 if (!cameFrom.ContainsKey(current.ToString())) continue;
@@ -272,6 +341,17 @@
 
         }
 
+        public Node FindNodeUnwalkable(Vector3 positionVector3)
+        {
+            var i = Mathf.RoundToInt(positionVector3.x / _sample);
+            var j = Mathf.RoundToInt(positionVector3.z / _sample);
+
+            i = Mathf.Clamp(i, 0, SampledWidth);
+            j = Mathf.Clamp(j, 0, SampledHeight);
+
+            return InternalGridWithUnwalkable[i, j];
+
+        }
         public Vector3 FindNodePosition(Vector3 position)
         {
             var node = FindNode(position);
@@ -286,19 +366,13 @@
         /// <param name="a">The Node a.</param>
         /// <param name="b">The goal Node b.</param>
         /// <returns></returns>
-        static float Heuristic(Node a, Node b)
+        private static float Heuristic(Node a, Node b)
         {
             var dx = Mathf.Abs(a.Position.x - b.Position.x);
             var dz = Mathf.Abs(a.Position.z - b.Position.z);
             var dy = Mathf.Abs(a.Position.y - b.Position.y);
 
             return 1.0f * (dx + dy + dz);
-        }
-
-        public bool IsPositionWalkable(Vector3 position)
-        {
-            var node = FindNode(position);
-            return node.IsWalkable;
         }
     }
 }

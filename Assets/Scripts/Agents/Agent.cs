@@ -58,6 +58,13 @@ namespace Assets.Scripts.Agents
             NodeIndex = Path.Count() - 1;
         }
 
+        public void ChangeLocation(Vector3 location)
+        {
+
+            Path = PathFinder.CalculatePath(transform.position, location);
+            NodeIndex = Path.Count() - 1;
+        }
+
         public void Say(string vocalMessage)
         {
             var formattedMessage = string.Format("{0} Message {1}", ToString(), vocalMessage);
@@ -106,11 +113,56 @@ namespace Assets.Scripts.Agents
         }
         protected virtual void Start()
         {
-            PathFinder = FindObjectOfType<PathFinder>();
+            var finders = FindObjectsOfType<PathFinder>();
+            PathFinder = finders.First(p => p.name.Equals("Terrain"));
             LocationManager = FindObjectOfType<LocationManager>();
             Path = Enumerable.Empty<Vector3>();
         }
 
+        void FixedUpdate()
+        {
+
+            if (!MoveToPoint(NodeIndex))
+                return;
+
+            NodeIndex -= 1;
+        }
+
+        private bool MoveToPoint(int nodeIndex)
+        {
+            if (nodeIndex < 0) return false;
+
+            if (!Path.Any()) return false;
+
+            if (Path.Count() <= nodeIndex) return false;
+
+            var point = Path.ElementAt(nodeIndex);
+
+            //this is for dynamic waypoint, each unit creep have it's own offset pos
+            //point+=dynamicOffset;
+            // point += pathDynamicOffset;//+flightHeightOffset;
+            var adjustedPoint = point + Vector3.up * 0.5f;
+
+            var dist = Vector3.Distance(adjustedPoint, transform.position);
+
+            //if the unit have reached the point specified
+            //~ if(dist<0.15f) return true;
+            if (dist < 0.005f) return true;
+
+            //rotate towards destination
+            //if (moveSpeed > 0)
+            //{
+            //    Quaternion wantedRot = Quaternion.LookRotation(point - transform.position);
+            //    //thisT.rotation = Quaternion.Slerp(thisT.rotation, wantedRot, rotateSpd * Time.deltaTime);
+            //}
+
+            //move, with speed take distance into accrount so the unit wont over shoot
+            Vector3 dir = (adjustedPoint - transform.position).normalized;
+            transform.Translate(dir * Mathf.Min(dist, MoveSpeed * Time.fixedDeltaTime), Space.World);
+            //distFromDestination -= (MoveSpeed * Time.fixedDeltaTime);
+
+            return false;
+        }
         #endregion
 
     }

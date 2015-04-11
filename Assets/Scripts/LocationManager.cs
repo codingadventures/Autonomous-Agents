@@ -38,6 +38,11 @@ namespace Assets.Scripts
             if (escapePoint == null) throw new NullReferenceException("EscapePoint game object is not available!");
 
             Locations.Add(LocationType.EscapePoint, escapePoint.transform);
+
+            var punishment = GameObject.FindGameObjectWithTag("PunishmentHill");
+            if (punishment == null) throw new NullReferenceException("PunishmentHill game object is not available!");
+
+            Locations.Add(LocationType.PunishmentHill, punishment.transform);
         }
       
     }

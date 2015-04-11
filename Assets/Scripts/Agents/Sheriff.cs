@@ -17,6 +17,8 @@ namespace Assets.Scripts.Agents
             base.Start();
 
             StateMachine.ChangeState(PatrolTown<Sheriff>.Instance);
+
+            StartCoroutine(PerformUpdate());
         }
 
         // Use this for initialization
@@ -36,19 +38,21 @@ namespace Assets.Scripts.Agents
         }
         public override void HandleSense(Sense sense)
         {
-            if (!sense.PropagateSense(transform.position, sense.AgentSensed.transform.position)) return;
 
             var agent = sense.AgentSensed;
 
             if (IsAgentBandit(agent))
             {
                 //Let's chase them
-                StateMachine.ChangeState(ChaseBandits<Sheriff>.Instance);
+                if (StateMachine.CurrentState != ChaseBandits<Sheriff>.Instance &&
+                    StateMachine.CurrentState != PunishBandits<Sheriff>.Instance)
+                    StateMachine.ChangeState(ChaseBandits<Sheriff>.Instance);
             }
             else
             {
-
-                //politely say hello
+                Say(sense.AgentSensed.GetType() == typeof(Miner)
+                    ? string.Format("Mornin' Bob!:{0}", sense.AgentSensed.Id)
+                    : string.Format("Good morning Mylady!:{0}", sense.AgentSensed.Id));
             }
 
 

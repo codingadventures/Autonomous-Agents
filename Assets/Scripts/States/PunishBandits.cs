@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Assets.Scripts.Agents;
 
 namespace Assets.Scripts.States
 {
-    public class RobBank<T> : State where T : Bandit
+    public class PunishBandits<T> : State where T : Sheriff
     {
-        private RobBank()
+        #region [ Singleton Implementation ]
+        public static PunishBandits<T> Instance { get { return Nested.instance; } }
+
+        private PunishBandits()
         {
-            Enter += RobBank_Enter;
+            Enter += PunishBandits_Enter;
         }
 
-       
 
-        #region [ Singleton Implementation ]
-
-        public static RobBank<T> Instance { get { return Nested.instance; } }
 
         /// This is a fully lazy initialization implementation
         /// Instantiation is triggered by the first reference to the static member of the nested class, 
@@ -33,21 +29,24 @@ namespace Assets.Scripts.States
             {
             }
 
-            internal static readonly RobBank<T> instance = new RobBank<T>();
+            internal static readonly PunishBandits<T> instance = new PunishBandits<T>();
         }
         #endregion
 
-        private void RobBank_Enter(object sender, AgentEventArgs<Agent> e)
+       
+
+        private void PunishBandits_Enter(object sender, AgentEventArgs<Agent> e)
         {
-            e.Agent.TargetLocation = LocationType.Bank;
-
-            if (e.Agent.Location != LocationType.Bank)
+            e.Agent.TargetLocation = LocationType.PunishmentHill;
+           
+            if (e.Agent.Location != e.Agent.TargetLocation)
                 e.Agent.ChangeState<T>(WalkingTo<T>.Instance);
-        }
 
+            e.Agent.Say(string.Format("Bandits you'll be punished! follow me!"));
+        }
         public override void Execute(Agent agent)
         {
-            agent.Say("YAY a lot of good miner's gold!");
+              agent.Say("This is the punishment you DESERVE! BANG BANG!");
         }
     }
 }

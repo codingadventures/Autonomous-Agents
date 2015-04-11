@@ -32,22 +32,29 @@ namespace Assets.Scripts.States
             internal static readonly PatrolTown<T> instance = new PatrolTown<T>();
         }
         #endregion
-      
-        private void PatrolTown_Enter(object sender, AgentEventArgs<Agent> e)
+
+        private LocationType GetNextLocation()
         {
             var values = Enum.GetValues(typeof(LocationType));
             var random = new Random();
             var randomLocation = (LocationType)values.GetValue(random.Next(values.Length));
 
-            e.Agent.TargetLocation = randomLocation;
+            return randomLocation;
+        }
 
-            if (e.Agent.Location != randomLocation)
+        private void PatrolTown_Enter(object sender, AgentEventArgs<Agent> e)
+        {
+           
+            if (e.Agent.Location != e.Agent.TargetLocation)
                 e.Agent.ChangeState<T>(WalkingTo<T>.Instance);
+ 
+            e.Agent.Say(string.Format("I'ma check {0}",e.Agent.TargetLocation));
         }
         public override void Execute(Agent agent)
         {
-           agent.Say("Patroling my loved town!");
+            agent.TargetLocation = GetNextLocation();
 
+            agent.ChangeState<T>(WalkingTo<T>.Instance);
         }
     }
 }
